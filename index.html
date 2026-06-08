@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en" class="theme-sepia"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading Session</title>
@@ -21,19 +19,23 @@
             --accent: #8c6239;
             --accent-light: #ebdcb9;
             --border-item: #e7dcbe;
+            /* Largura inicial da coluna de personagens */
+            --char-width: 50%;
+            /* Fator de Zoom Inicial */
+            --zoom-factor: 1;
         }
 
-        body.theme-white {
-            --bg: #e0f2fe;          /* Fundo da página: Lindo azul-celeste pastel */
-            --card-bg: #ffffff;     /* Card: Branco puro */
-            --text-main: #1e293b;   /* Texto: Azul ardósia profundo */
-            --text-muted: #64748b;  /* Texto Secundário: Cinza azulado */
-            --accent: #0284c7;      /* Destaque: Azul oceano nítido */
-            --accent-light: #f0f9ff;/* Detalhes: Azul bebê suave */
-            --border-item: #e2e8f0; /* Campos de Leitura: Tom nítido sobre o card branco */
+        .theme-white {
+            --bg: #e4e4e7;          /* Fundo externo: Um cinza claro elegante para contraste total */
+            --card-bg: #ffffff;     /* Card interno: Mantido em branco puro */
+            --text-main: #18181b;   /* Texto: Carvão escuro profundo de alta legibilidade */
+            --text-muted: #52525b;  /* Texto Secundário: Cinza fosco médio */
+            --accent: #27272a;      /* Destaque: Preto minimalista nítido */
+            --accent-light: #f4f4f5;/* Detalhes: Cinza bem clarinho */
+            --border-item: #e4e4e7; /* Alterado para um cinza mais forte e visível sobre o card branco */
         }
 
-        body.theme-black {
+        .theme-black {
             --bg: #090d16;
             --card-bg: #111827;
             --text-main: #f9fafb;
@@ -45,18 +47,42 @@
 
         * { box-sizing: border-box; }
 
+        /* Estilização Customizada e Fina da Barra de Rolagem Global */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-muted) var(--bg);
+            scroll-behavior: smooth;
+        }
+
+        /* Suporte para Chrome, Safari e Edge */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+            transition: background 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--text-muted);
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+            transition: background-color 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--accent);
+        }
+
         body {
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
-            padding: clamp(5px, 2vw, 20px);
+            padding: 120px 20px;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
+            align-items: center; 
             min-height: 100vh;
             font-family: 'DM Sans', sans-serif;
-            transition: all 0.3s ease;
-            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* 2. TOP UTILITY BAR */
@@ -70,10 +96,17 @@
             align-items: center;
             pointer-events: none;
             z-index: 1000;
+            gap: 10px;
         }
 
         .top-utility-bar > * {
             pointer-events: auto;
+        }
+
+        .right-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
         .mode-switcher {
@@ -85,17 +118,25 @@
             backdrop-filter: blur(5px);
         }
 
-        .theme-switcher {
+        .theme-switcher, .zoom-controls {
             display: flex;
             gap: 10px;
             background: rgba(0, 0, 0, 0.05);
             padding: 6px 10px;
             border-radius: 30px;
             backdrop-filter: blur(5px);
+            align-items: center;
+        }
+        
+        .zoom-controls {
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
         }
 
-        body.theme-black .mode-switcher, 
-        body.theme-black .theme-switcher {
+        .theme-black .mode-switcher, 
+        .theme-black .theme-switcher,
+        .theme-black .zoom-controls {
             background: rgba(255, 255, 255, 0.08);
         }
 
@@ -132,6 +173,28 @@
         .btn-sepia { background: #f4ecd8; border-color: #d0c4a7; }
         .active-theme { border-color: var(--accent) !important; transform: scale(1.2); }
 
+        /* Botões de Zoom */
+        .zoom-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: none;
+            background: var(--card-bg);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .zoom-btn:hover {
+            transform: scale(1.1);
+            color: var(--accent);
+        }
+
         /* 3. MAIN CONTAINER */
         .container {
             background-color: var(--card-bg);
@@ -143,6 +206,12 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            zoom: var(--zoom-factor); 
+            
+            /* Centralização vertical segura */
+            margin-top: auto;
+            margin-bottom: auto;
+            flex-shrink: 0;
         }
 
         h1 {
@@ -194,6 +263,8 @@
             padding: 0 2px;
             white-space: normal;
             word-break: break-word;
+            background-color: transparent; 
+            border-radius: 0;
         }
 
         .book-name:empty::before, .host-name:empty::before {
@@ -215,7 +286,7 @@
             opacity: 0.5;
         }
 
-        /* 5. QUEUE STYLING */
+        /* 5. ARQUITETURA DE COLUNAS LADO A LADO */
         .queue-container {
             text-align: left;
             margin-top: 2px;
@@ -229,63 +300,138 @@
             display: block;
         }
 
-        .queue-header {
-            display: none;
-            padding: 0 14px; 
-            margin-bottom: 6px;
-            border-left: 4px solid transparent; 
-            align-items: center;
-        }
-
-        body.mode-script .queue-header {
+        .script-columns-container {
             display: flex;
+            width: 100%;
+            align-items: stretch;
         }
 
-        .header-spacer-left {
-            width: 20px;
-            margin-right: 10px;
+        .queue-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-left {
+            width: var(--char-width, 50%);
             flex-shrink: 0;
         }
 
-        .header-titles {
-            display: flex;
+        html.mode-script .column-right {
             flex-grow: 1;
-            gap: 12px;
+            width: calc(100% - var(--char-width, 50%));
         }
 
-        .header-titles span {
-            flex: 1;
-            width: 50%;
+        html:not(.mode-script) .column-right {
+            width: 100%;
+        }
+
+        html:not(.mode-script) .column-left,
+        html:not(.mode-script) .resize-handle {
+            display: none !important;
+        }
+
+        /* Títulos dos Cabeçalhos */
+        .queue-header-title {
+            display: none;
             font-size: clamp(0.7rem, 2vw, 0.8rem);
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            text-align: center; 
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
+        html.mode-script .queue-header-title {
+            display: block;
+        }
+
+        html.mode-script .column-left .queue-header-title {
+            padding-left: 48px; 
+            text-align: left;
+        }
+
+        html.mode-script .column-right .queue-header-title {
+            padding-left: 14px;
+            text-align: left; 
+        }
+
+        /* Barra de Arrasto Vertical Contínua */
+        .resize-handle {
+            width: 14px;
+            cursor: col-resize;
+            margin: 0 -7px;
+            z-index: 10;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .resize-handle::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.1);
+            transition: background 0.2s;
+        }
+
+        .theme-black .resize-handle::after {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .resize-handle:hover::after, .resize-handle.dragging::after {
+            background: var(--accent);
+        }
+
+        /* Estilização das Listas */
         .queue-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            counter-reset: reader-counter;
         }
+
+        html.mode-script .column-left .queue-list { counter-reset: reader-counter; }
+        html:not(.mode-script) .column-right .queue-list { counter-reset: reader-counter; }
 
         .queue-list li {
             background-color: var(--border-item);
             padding: clamp(4px, 1.5vw, 6px) 14px;
             margin-bottom: 4px;
-            border-radius: 10px;
-            border-left: 4px solid var(--accent);
             display: flex;
             align-items: center;
-            justify-content: flex-start;
             position: relative; 
-            transition: 0.2s;
-            flex-wrap: nowrap;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            min-height: 38px;
         }
 
-        .queue-list li::before {
+        /* Ajuste de Bordas Dinâmicas para Fusão Visual */
+        .column-left .queue-list li {
+            border-left: 4px solid var(--accent);
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            padding-right: 8px;
+        }
+
+        html.mode-script .column-right .queue-list li {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            padding-left: 14px;
+            padding-right: 36px; 
+        }
+
+        html:not(.mode-script) .column-right .queue-list li {
+            border-left: 4px solid var(--accent);
+            border-radius: 10px;
+        }
+
+        /* Numeração Condicional */
+        .column-left .queue-list li::before,
+        html:not(.mode-script) .column-right .queue-list li::before {
             counter-increment: reader-counter;
             content: counter(reader-counter) ".";
             font-weight: 700;
@@ -298,58 +444,37 @@
             flex-shrink: 0;
         }
 
-        .reader-inputs {
-            display: flex;
-            flex-grow: 1;
-            gap: 12px;
-            align-items: center;
-            overflow: hidden;
+        html.mode-script .column-right .queue-list li::before {
+            content: none;
         }
 
-        .character-name {
-            display: none;
-            outline: none;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            font-weight: 700;
-            color: var(--accent);
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .reader-name {
-            flex-grow: 1;
+        /* Inputs de Texto Dentro das Colunas */
+        .character-name, .reader-name {
             outline: none;
             font-size: clamp(0.85rem, 2.5vw, 1rem);
             font-weight: 700; 
             white-space: nowrap;
             overflow: hidden;
-            text-align: left; 
-        }
-
-        /* Script Mode Layout Responsivo Dinâmico */
-        body.mode-script .character-name {
+            width: 100%;
             display: block;
-            flex: 1 1 50%;
-            min-width: 0;
-            border-right: 1px dashed rgba(0, 0, 0, 0.15);
-            padding-right: 8px;
             text-align: left; 
+            background: transparent; 
+            border: none;
         }
 
-        body.theme-white.mode-script .character-name {
-            border-right-color: rgba(0, 0, 0, 0.1);
+        .character-name {
+            color: var(--accent);
         }
 
-        body.theme-black.mode-script .character-name {
-            border-right-color: rgba(255, 255, 255, 0.15);
+        /* Exibe o texto completo sem cortar enquanto estiver editando */
+        .character-name:not(:focus), .reader-name:not(:focus) {
+            text-overflow: ellipsis;
+        }
+        .character-name:focus, .reader-name:focus {
+            text-overflow: clip;
         }
 
-        body.mode-script .reader-name {
-            flex: 1 1 50%;
-            min-width: 0;
-            text-align: left; 
-        }
-
+        /* Botão Lixeira Customizado */
         .delete-btn {
             position: absolute;
             right: 8px;
@@ -370,10 +495,10 @@
             z-index: 5;
         }
 
-        .queue-list li:hover .delete-btn { opacity: 0.6; }
-        .queue-list li:hover .delete-btn:hover { opacity: 1; transform: translateY(-50%) scale(1.15); }
+        .column-right .queue-list li:hover .delete-btn { opacity: 0.6; }
+        .column-right .queue-list li:hover .delete-btn:hover { opacity: 1; transform: translateY(-50%) scale(1.15); }
 
-        .queue-list li:first-child .delete-btn {
+        .column-right .queue-list li:first-child .delete-btn {
             display: none !important;
         }
 
@@ -444,9 +569,7 @@
         @media (max-width: 450px) {
             .top-utility-bar { top: 10px; left: 10px; right: 10px; }
         }
-    </style>
-</head>
-<body class="theme-sepia">
+    </style></head><body>
 
     <div class="top-utility-bar">
         <div class="mode-switcher">
@@ -454,10 +577,17 @@
             <button class="mode-btn" id="btnScript" onclick="setMode('script')">Script</button>
         </div>
 
-        <div class="theme-switcher">
-            <div class="theme-btn btn-white" onclick="setTheme('white')"></div>
-            <div class="theme-btn btn-black" onclick="setTheme('black')"></div>
-            <div class="theme-btn btn-sepia active-theme" onclick="setTheme('sepia')"></div>
+        <div class="right-controls">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomOut()">-</button>
+                <button class="zoom-btn" onclick="zoomIn()">+</button>
+            </div>
+
+            <div class="theme-switcher">
+                <div class="theme-btn btn-white" onclick="setTheme('white')"></div>
+                <div class="theme-btn btn-sepia active-theme" onclick="setTheme('sepia')"></div>
+                <div class="theme-btn btn-black" onclick="setTheme('black')"></div>
+            </div>
         </div>
     </div>
 
@@ -480,28 +610,37 @@
         <div class="queue-container">
             <span class="queue-label">Reading Order:</span>
             
-            <div class="queue-header">
-                <div class="header-spacer-left"></div>
-                <div class="header-titles">
-                    <span>Character</span>
-                    <span>Reader</span>
+            <div class="script-columns-container">
+                <div class="queue-column column-left">
+                    <div class="queue-header-title">Character</div>
+                    <ul class="queue-list" id="leftQueueList">
+                        <li><span class="character-name" contenteditable="true" tabIndex="3"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="5"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="7"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="9"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="11"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="13"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="15"></span></li>
+                        <li><span class="character-name" contenteditable="true" tabIndex="17"></span></li>
+                    </ul>
+                </div>
+
+                <div class="resize-handle"></div>
+
+                <div class="queue-column column-right">
+                    <div class="queue-header-title">&nbsp;&nbsp;&nbsp;&nbsp;Reader</div>
+                    <ul class="queue-list" id="rightQueueList">
+                        <li><span class="reader-name" contenteditable="true" tabIndex="4"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="6"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="8"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="10"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="12"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="14"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="16"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                        <li><span class="reader-name" contenteditable="true" tabIndex="18"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                    </ul>
                 </div>
             </div>
-
-            <ul class="queue-list" id="queueList">
-                <li>
-                    <div class="reader-inputs">
-                        <span class="character-name" contenteditable="true" tabIndex="3"></span>
-                        <span class="reader-name" contenteditable="true" tabIndex="4"></span>
-                    </div>
-                    <button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button>
-                </li>
-                <li><div class="reader-inputs"><span class="character-name" contenteditable="true" tabIndex="5"></span><span class="reader-name" contenteditable="true" tabIndex="6"></span></div><button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button></li>
-                <li><div class="reader-inputs"><span class="character-name" contenteditable="true" tabIndex="7"></span><span class="reader-name" contenteditable="true" tabIndex="8"></span></div><button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button></li>
-                <li><div class="reader-inputs"><span class="character-name" contenteditable="true" tabIndex="9"></span><span class="reader-name" contenteditable="true" tabIndex="10"></span></div><button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button></li>
-                <li><div class="reader-inputs"><span class="character-name" contenteditable="true" tabIndex="11"></span><span class="reader-name" contenteditable="true" tabIndex="12"></span></div><button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button></li>
-                <li><div class="reader-inputs"><span class="character-name" contenteditable="true" tabIndex="13"></span><span class="reader-name" contenteditable="true" tabIndex="14"></span></div><button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button></li>
-            </ul>
         </div>
 
         <button class="add-btn" onclick="addReader()">➕ Add Reader</button>
@@ -520,14 +659,13 @@
 
     <script>
         function setTheme(theme) {
-            document.body.classList.remove('theme-white', 'theme-black', 'theme-sepia');
-            document.body.classList.add('theme-' + theme);
+            document.documentElement.classList.remove('theme-white', 'theme-black', 'theme-sepia');
+            document.documentElement.classList.add('theme-' + theme);
             
             document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
             document.querySelector('.btn-' + theme).classList.add('active-theme');
         }
 
-        // Troca de modo atualizando o título da aba e o favicon de forma inteligente
         function setMode(mode) {
             const title = document.querySelector('h1');
             const btnBook = document.getElementById('btnBook');
@@ -542,7 +680,7 @@
                 favicon.setAttribute('href', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>');
                 btnScript.classList.add('active-mode');
                 btnBook.classList.remove('active-mode');
-                document.body.classList.add('mode-script');
+                document.documentElement.classList.add('mode-script');
                 hostLabelBook.innerText = 'Script:';
                 bookName.setAttribute('placeholder', "Click to type script's name");
             } else {
@@ -551,31 +689,65 @@
                 favicon.setAttribute('href', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>');
                 btnBook.classList.add('active-mode');
                 btnScript.classList.remove('active-mode');
-                document.body.classList.remove('mode-script');
+                document.documentElement.classList.remove('mode-script');
                 hostLabelBook.innerText = 'Book:';
                 bookName.setAttribute('placeholder', "Click to type book's name");
             }
         }
 
-        let lastTabIndex = 14; 
+        // Lógica de Zoom
+        let currentZoom = 1;
+        function zoomIn() {
+            if (currentZoom < 1.4) {
+                currentZoom += 0.05;
+                document.documentElement.style.setProperty('--zoom-factor', currentZoom);
+            }
+        }
+        function zoomOut() {
+            if (currentZoom > 0.75) {
+                currentZoom -= 0.05;
+                document.documentElement.style.setProperty('--zoom-factor', currentZoom);
+            }
+        }
+
+        let lastTabIndex = 18; 
         function addReader(focusTarget) {
-            const list = document.getElementById('queueList');
-            const li = document.createElement('li');
-            li.innerHTML = '<div class="reader-inputs"><span class="character-name" contenteditable="true" tabIndex="' + (lastTabIndex + 1) + '"></span><span class="reader-name" contenteditable="true" tabIndex="' + (lastTabIndex + 2) + '"></span></div><button class="delete-btn" onclick="this.parentElement.remove()" tabIndex="-1">🗑️</button>';
-            list.appendChild(li);
+            const leftList = document.getElementById('leftQueueList');
+            const rightList = document.getElementById('rightQueueList');
+            
+            const leftLi = document.createElement('li');
+            leftLi.innerHTML = '<span class="character-name" contenteditable="true" tabIndex="' + (lastTabIndex + 1) + '"></span>';
+            
+            const rightLi = document.createElement('li');
+            rightLi.innerHTML = '<span class="reader-name" contenteditable="true" tabIndex="' + (lastTabIndex + 2) + '"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button>';
+            
+            leftList.appendChild(leftLi);
+            rightList.appendChild(rightLi);
             lastTabIndex += 2;
             
             if (focusTarget === 'reader') {
-                li.querySelector('.reader-name').focus();
+                rightLi.querySelector('.reader-name').focus();
             } else if (focusTarget === 'character') {
-                li.querySelector('.character-name').focus();
+                leftLi.querySelector('.character-name').focus();
             } else {
-                if (document.body.classList.contains('mode-script')) {
-                    li.querySelector('.character-name').focus();
+                if (document.documentElement.classList.contains('mode-script')) {
+                    leftLi.querySelector('.character-name').focus();
                 } else {
-                    li.querySelector('.reader-name').focus();
+                    rightLi.querySelector('.reader-name').focus();
                 }
             }
+        }
+
+        function deleteReader(btn) {
+            const rightLi = btn.closest('li');
+            const rightList = rightLi.parentElement;
+            const index = Array.from(rightList.children).indexOf(rightLi);
+            
+            const leftList = document.getElementById('leftQueueList');
+            const leftLi = leftList.children[index];
+            
+            if (leftLi) leftLi.remove();
+            rightLi.remove();
         }
 
         function handleSmartNavigation(e) {
@@ -585,43 +757,91 @@
                 document.querySelector('.host-name').focus();
             } 
             else if (target.classList.contains('host-name')) {
-                const firstLi = document.querySelector('#queueList li');
-                if (firstLi) {
-                    if (document.body.classList.contains('mode-script')) {
-                        firstLi.querySelector('.character-name').focus();
-                    } else {
-                        firstLi.querySelector('.reader-name').focus();
-                    }
+                if (document.documentElement.classList.contains('mode-script')) {
+                    const firstLeft = document.querySelector('#leftQueueList li .character-name');
+                    if (firstLeft) firstLeft.focus();
+                } else {
+                    const firstRight = document.querySelector('#rightQueueList li .reader-name');
+                    if (firstRight) firstRight.focus();
                 }
             } 
             else if (target.classList.contains('character-name')) {
-                const nextLi = target.closest('li').nextElementSibling;
-                if (nextLi) {
-                    nextLi.querySelector('.character-name').focus();
-                } else {
-                    addReader('character');
-                }
+                const currentLi = target.closest('li');
+                const leftList = currentLi.parentElement;
+                const index = Array.from(leftList.children).indexOf(currentLi);
+                
+                const rightList = document.getElementById('rightQueueList');
+                const matchingReader = rightList.children[index]?.querySelector('.reader-name');
+                if (matchingReader) matchingReader.focus();
             } 
             else if (target.classList.contains('reader-name')) {
-                const nextLi = target.closest('li').nextElementSibling;
-                if (nextLi) {
-                    nextLi.querySelector('.reader-name').focus();
+                const currentLi = target.closest('li');
+                const rightList = currentLi.parentElement;
+                const index = Array.from(rightList.children).indexOf(currentLi);
+                const nextIndex = index + 1;
+                
+                if (document.documentElement.classList.contains('mode-script')) {
+                    const leftList = document.getElementById('leftQueueList');
+                    const nextCharacter = leftList.children[nextIndex]?.querySelector('.character-name');
+                    if (nextCharacter) {
+                        nextCharacter.focus();
+                    } else {
+                        addReader('character');
+                    }
                 } else {
-                    addReader('reader');
+                    const nextReader = rightList.children[nextIndex]?.querySelector('.reader-name');
+                    if (nextReader) {
+                        nextReader.focus();
+                    } else {
+                        addReader('reader');
+                    }
                 }
             }
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' || e.key === 'Tab') {
                 e.preventDefault();
-                handleSmartNavigation(e);
-            } 
-            else if (e.key === 'Tab') {
-                e.preventDefault(); 
                 handleSmartNavigation(e);
             }
         });
-    </script>
-</body>
-</html>
+
+        document.addEventListener('blur', (e) => {
+            if (e.target.classList.contains('character-name') || e.target.classList.contains('reader-name')) {
+                e.target.scrollLeft = 0;
+            }
+        }, true);
+
+        // Lógica de Arrasto Dinâmico Contínuo da Divisória
+        const handle = document.querySelector('.resize-handle');
+        const container = document.querySelector('.script-columns-container');
+        
+        if (handle && container) {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                handle.classList.add('dragging');
+                
+                const containerRect = container.getBoundingClientRect();
+                
+                const onMouseMove = (moveEvent) => {
+                    const offsetPx = moveEvent.clientX - containerRect.left;
+                    let percentage = (offsetPx / containerRect.width) * 100;
+                    
+                    // Trava exatamente em 28% para o indicador não cobrir o texto "CHARACTER"
+                    if (percentage < 28) percentage = 28;
+                    if (percentage > 85) percentage = 85;
+                    
+                    document.documentElement.style.setProperty('--char-width', percentage + '%');
+                };
+                
+                const onMouseUp = () => {
+                    handle.classList.remove('dragging');
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        }
+    </script></body></html>
