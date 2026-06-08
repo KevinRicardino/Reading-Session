@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading Session Controller</title>
+    <title>Reading Session</title>
+    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -22,13 +24,13 @@
         }
 
         body.theme-white {
-            --bg: #e0f2fe;          /* Fundo da página: Lindo azul-celeste pastel que elimina o "branco com branco" */
-            --card-bg: #ffffff;     /* Card: Branco puro para contraste ideal */
+            --bg: #e0f2fe;          /* Fundo da página: Lindo azul-celeste pastel */
+            --card-bg: #ffffff;     /* Card: Branco puro */
             --text-main: #1e293b;   /* Texto: Azul ardósia profundo */
             --text-muted: #64748b;  /* Texto Secundário: Cinza azulado */
             --accent: #0284c7;      /* Destaque: Azul oceano nítido */
             --accent-light: #f0f9ff;/* Detalhes: Azul bebê suave */
-            --border-item: #e2e8f0; /* Campos de Leitura: Tom nítido que destaca perfeitamente sobre o card branco */
+            --border-item: #e2e8f0; /* Campos de Leitura: Tom nítido sobre o card branco */
         }
 
         body.theme-black {
@@ -525,15 +527,19 @@
             document.querySelector('.btn-' + theme).classList.add('active-theme');
         }
 
+        // Troca de modo atualizando o título da aba e o favicon de forma inteligente
         function setMode(mode) {
             const title = document.querySelector('h1');
             const btnBook = document.getElementById('btnBook');
             const btnScript = document.getElementById('btnScript');
             const hostLabelBook = document.getElementById('hostLabelBook');
             const bookName = document.querySelector('.book-name');
+            const favicon = document.getElementById('favicon');
 
             if(mode === 'script') {
                 title.innerHTML = '🎭 Script Reading';
+                document.title = 'Script Reading';
+                favicon.setAttribute('href', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>');
                 btnScript.classList.add('active-mode');
                 btnBook.classList.remove('active-mode');
                 document.body.classList.add('mode-script');
@@ -541,6 +547,8 @@
                 bookName.setAttribute('placeholder', "Click to type script's name");
             } else {
                 title.innerHTML = '📖 Reading Session';
+                document.title = 'Reading Session';
+                favicon.setAttribute('href', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>');
                 btnBook.classList.add('active-mode');
                 btnScript.classList.remove('active-mode');
                 document.body.classList.remove('mode-script');
