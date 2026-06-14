@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" class="theme-sepia"><head>
+<!DOCTYPE html><html lang="en" class="theme-white"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading Session</title>
@@ -6,141 +6,107 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=DM+Sans:wght@400;500;700&family=Inter:wght@400;700&family=Lexend:wght@400;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
     <style>
         /* 1. SETUP & THEMES */
         :root {
-            /* SEPIA THEME (Default) */
-            --bg: #f4ecd8;
-            --card-bg: #fdfbf7;
-            --text-main: #433422;
-            --text-muted: #706251;
-            --accent: #8c6239;
-            --accent-light: #ebdcb9;
-            --border-item: #e7dcbe;
-            /* Largura inicial da coluna de personagens */
+            --bg: #e4e4e7;          
+            --card-bg: #ffffff;     
+            --text-main: #18181b;   
+            --text-muted: #52525b;  
+            --accent: #27272a;      
+            --accent-light: #f4f4f5;
+            --border-item: #e4e4e7; 
+            
             --char-width: 50%;
-            /* Fator de Zoom Inicial */
-            --zoom-factor: 1;
+            --zoom-factor: 0.95;
+            --pdf-width: 80.5%;
+            --pdf-bg-color: #FFFFFF;
+            
+            --row-scale: 1;
         }
 
-        .theme-white {
-            --bg: #e4e4e7;          /* Fundo externo: Um cinza claro elegante para contraste total */
-            --card-bg: #ffffff;     /* Card interno: Mantido em branco puro */
-            --text-main: #18181b;   /* Texto: Carvão escuro profundo de alta legibilidade */
-            --text-muted: #52525b;  /* Texto Secundário: Cinza fosco médio */
-            --accent: #27272a;      /* Destaque: Preto minimalista nítido */
-            --accent-light: #f4f4f5;/* Detalhes: Cinza bem clarinho */
-            --border-item: #e4e4e7; /* Alterado para um cinza mais forte e visível sobre o card branco */
+        .theme-sepia {
+            --bg: #E9D8BC;          
+            --card-bg: #f4eae0;     
+            --text-main: #231c16;   
+            --text-muted: #726555;  
+            --accent: #231c16;      
+            --accent-light: #e4d7c1;
+            --border-item: #decfa8; 
         }
 
         .theme-black {
-            --bg: #090d16;
-            --card-bg: #111827;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --accent: #06b6d4;
-            --accent-light: #083344;
-            --border-item: #1f2937;
+            --bg: #0f0f11;          
+            --card-bg: #16161a;     
+            --text-main: #f3f3f5;   
+            --text-muted: #8e8e93;  
+            --accent: #f3f3f5;      
+            --accent-light: #242429;
+            --border-item: #2c2c32; 
         }
 
         * { box-sizing: border-box; }
 
-        /* Estilização Customizada e Fina da Barra de Rolagem Global */
-        html {
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             scrollbar-width: thin;
             scrollbar-color: var(--text-muted) var(--bg);
-            scroll-behavior: smooth;
-        }
-
-        /* Suporte para Chrome, Safari e Edge */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-            transition: background 0.3s ease;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: var(--text-muted);
-            border-radius: 10px;
-            border: 2px solid var(--bg);
-            transition: background-color 0.3s ease;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: var(--accent);
         }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
-            margin: 0;
-            padding: 120px 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center; 
-            min-height: 100vh;
+            align-items: stretch;
             font-family: 'DM Sans', sans-serif;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* 2. TOP UTILITY BAR */
+        body.dragging-workspace .pdf-viewer-container,
+        body.dragging-workspace .content-scroll-wrapper,
+        body.dragging-workspace .pdf-add-btn {
+            transition: none !important;
+        }
+
+        /* 2. TOP UTILITY BAR CENTRALIZADA */
         .top-utility-bar {
-            position: fixed;
+            position: absolute;
             top: 20px;
-            left: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            pointer-events: none;
+            justify-content: center;
             z-index: 1000;
-            gap: 10px;
+            gap: 12px;
+            width: max-content;
         }
 
-        .top-utility-bar > * {
-            pointer-events: auto;
-        }
-
-        .right-controls {
+        .mode-switcher, .theme-switcher, .zoom-controls, .pdf-toolbar-group {
             display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .mode-switcher {
-            display: flex;
-            gap: 5px;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 4px;
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
-        }
-
-        .theme-switcher, .zoom-controls {
-            display: flex;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 6px 10px;
-            border-radius: 30px;
-            backdrop-filter: blur(5px);
-            align-items: center;
-        }
-        
-        .zoom-controls {
             gap: 6px;
+            background: rgba(0, 0, 0, 0.05);
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 14px;
+            backdrop-filter: blur(5px);
+            align-items: center;
         }
 
         .theme-black .mode-switcher, 
         .theme-black .theme-switcher,
-        .theme-black .zoom-controls {
+        .theme-black .zoom-controls,
+        .theme-black .pdf-toolbar-group {
             background: rgba(255, 255, 255, 0.08);
         }
 
-        /* Buttons Styles */
         .mode-btn {
             padding: 6px 12px;
             border-radius: 8px;
@@ -156,7 +122,7 @@
         .mode-btn.active-mode {
             background: var(--card-bg);
             color: var(--accent);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
 
         .theme-btn {
@@ -169,11 +135,10 @@
         }
 
         .btn-white { background: #fff; border-color: #ccc; }
-        .btn-black { background: #090d16; border-color: #333; }
-        .btn-sepia { background: #f4ecd8; border-color: #d0c4a7; }
+        .btn-black { background: #0f0f11; border-color: #333; }
+        .btn-sepia { background: #E9D8BC; border-color: #decfa8; }
         .active-theme { border-color: var(--accent) !important; transform: scale(1.2); }
 
-        /* Botões de Zoom */
         .zoom-btn {
             width: 22px;
             height: 22px;
@@ -188,482 +153,586 @@
             align-items: center;
             justify-content: center;
             transition: 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .zoom-btn:hover {
-            transform: scale(1.1);
-            color: var(--accent);
         }
 
-        /* 3. MAIN CONTAINER */
+        /* WORKSPACE ARQUITETURA */
+        .workspace-layout {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            align-items: stretch;
+            position: relative;
+        }
+
+        /* PAINEL DO PDF */
+        .pdf-viewer-container {
+            display: none;
+            width: var(--pdf-width, 80.5%);
+            height: 100vh;
+            border-right: 1px solid var(--border-item);
+            position: relative;
+            flex-direction: column;
+            background-color: var(--pdf-bg-color) !important;
+            transition: background-color 0.3s ease;
+        }
+
+        body.has-pdf .pdf-viewer-container {
+            display: flex;
+        }
+
+        /* TOOLBAR FLUTUANTE DO LEITOR */
+        .pdf-toolbar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            background: transparent !important;
+            border: none !important;
+            padding: 0;
+            gap: 10px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .pdf-toolbar > * {
+            pointer-events: auto;
+        }
+
+        /* CORRIGIDO: Modificadores CSS estritos para opacidade e eliminação de blur no PDF */
+        .pdf-toolbar .pdf-toolbar-group {
+            background: rgba(0, 0, 0, 0.08) !important;
+            backdrop-filter: none !important; 
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+        .theme-black .pdf-toolbar .pdf-toolbar-group {
+            background: rgba(255, 255, 255, 0.12) !important;
+        }
+        .pdf-toolbar .pdf-toolbar-group:hover {
+            opacity: 1 !important;
+        }
+
+        .pdf-toolbar button {
+            background: transparent !important;
+            color: var(--text-main) !important;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            padding: 6px 12px !important;
+            border-radius: 8px !important;
+            border: none !important;
+            transition: 0.2s;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: none !important;
+        }
+        .pdf-toolbar button:hover { 
+            background: rgba(0,0,0,0.05) !important; 
+        }
+        .theme-black .pdf-toolbar button:hover {
+            background: rgba(255,255,255,0.1) !important;
+        }
+        
+        .pdf-toolbar input {
+            background: transparent !important;
+            border: none !important;
+            font-size: 0.75rem !important;
+            font-weight: bold !important;
+            color: var(--text-main) !important;
+            outline: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        /* BARRAS DE ROLAGEM */
+        .pdf-scroll-area {
+            flex: 1;
+            overflow: auto !important; 
+            padding: 85px 20px 20px 20px; 
+            position: relative;
+            background-color: transparent;
+        }
+
+        #pdfPagesTarget {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: max-content; 
+            margin: 0 auto;
+        }
+        #pdfPagesTarget.double-view {
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .pdf-page-wrapper {
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+            background-color: #ffffff;
+            display: block;
+            overflow: hidden;
+        }
+
+        /* CONFIGURAÇÃO RENDER DE CORES DE FUNDO */
+        .pdf-theme-white .pdf-page-wrapper { background-color: #FFFFFF !important; }
+        .pdf-theme-black .pdf-page-wrapper { background-color: #16161a !important; }
+        .pdf-theme-sepia .pdf-page-wrapper { background-color: #E9D8BC !important; }
+
+        .pdf-viewer-container .pdf-page-wrapper canvas {
+            display: block !important;
+            max-width: 100%;
+            height: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* BLEND MODES DE ALTA FIDELIDADE */
+        .pdf-theme-sepia canvas { filter: sepia(0.4) contrast(0.95); mix-blend-mode: multiply; }
+        .pdf-theme-black canvas { filter: invert(0.9) hue-rotate(180deg); mix-blend-mode: normal; }
+
+        /* CAMADA NATIVA DE SELEÇÃO TRANSPARENTE */
+        .textLayer {
+            position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+            overflow: hidden; opacity: 1; line-height: 1.0; z-index: 3;
+        }
+        .textLayer span {
+            position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%;
+            color: transparent !important;
+            background: transparent !important;
+        }
+        .textLayer ::selection {
+            background: rgba(0, 123, 255, 0.25);
+        }
+
+        /* PROGRESS TRACKER */
+        .pdf-progress-tracker {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            z-index: 1005;
+            border: 1px solid var(--border-item);
+            pointer-events: none;
+            display: none;
+        }
+        body.has-pdf .pdf-progress-tracker { display: block; }
+
+        .pdf-drop-zone {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px; text-align: center; cursor: pointer;
+        }
+
+        /* DIVISÓRIA CENTRAL */
+        .workspace-resize-handle {
+            display: none;
+            width: 6px;
+            cursor: col-resize;
+            z-index: 100;
+            position: relative;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.04);
+            transition: background 0.1s;
+        }
+        body.has-pdf .workspace-resize-handle { display: block; }
+        .workspace-resize-handle:hover, .workspace-resize-handle.dragging { background: var(--accent); }
+
+        /* LADO DIREITO CONTEÚDO */
+        .content-scroll-wrapper {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            padding: 100px 10px 60px 10px;
+            position: relative;
+            scrollbar-gutter: stable;
+        }
+
         .container {
             background-color: var(--card-bg);
             padding: clamp(20px, 5vw, 40px) clamp(15px, 4vw, 30px) clamp(25px, 6vw, 45px) clamp(15px, 4vw, 30px);
             border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 550px;
-            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+            width: 550px;
+            max-width: 100%;
             position: relative;
-            overflow: hidden;
             zoom: var(--zoom-factor); 
-            
-            /* Centralização vertical segura */
-            margin-top: auto;
+            height: fit-content;
             margin-bottom: auto;
-            flex-shrink: 0;
+            container-type: inline-size;
         }
 
+        .pdf-add-btn {
+            position: fixed;
+            background: var(--card-bg);
+            border: 1px solid var(--border-item);
+            width: 44px;
+            height: 44px;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 1002;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            font-size: 1.15rem;
+            top: 50%;
+            transform: translateY(-50%) translateX(-50%);
+        }
+        body:not(.has-pdf) .pdf-add-btn { left: 0%; transform: translateY(-50%) translateX(10px); transition: transform 0.2s; }
+        body.has-pdf .pdf-add-btn { left: var(--pdf-width, 80.5%); transition: left 0.1s linear, transform 0.2s; }
+        body.dragging-workspace .pdf-add-btn { transition: none !important; left: var(--pdf-width, 80.5%) !important; }
+        .pdf-add-btn:hover { transform: translateY(-50%) translateX(-50%) scale(1.08); border-color: var(--accent); }
+        body:not(.has-pdf) .pdf-add-btn:hover { transform: translateY(-50%) translateX(10px) scale(1.08); }
+
         h1 {
-            color: var(--accent);
-            font-family: 'Merriweather', serif;
-            font-size: clamp(1.12125rem, 6.9vw, 2.53rem); 
-            margin: 0 0 5.75px 0; 
-            white-space: nowrap;
-            overflow: hidden;
+            color: var(--accent); font-family: 'Merriweather', serif;
+            font-size: clamp(1.2rem, 7.5cqw, 2.5rem); margin: 0 0 5.75px 0; 
+            white-space: nowrap; overflow: hidden;
+            text-align: center;
         }
 
         .subtitle {
-            font-size: clamp(0.7475rem, 2.875vw, 1.0925rem); 
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: clamp(17.25px, 6.9vw, 40.25px); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            white-space: normal;
-            text-align: center;
+            font-size: 10px; color: var(--text-main);
+            font-weight: 600; font-style: normal; margin-bottom: 12px; 
+            display: flex; justify-content: center; align-items: center; gap: 6px;
         }
 
-        /* 4. METADATA FIELDS */
         .host-container {
-            text-align: left;
-            margin-bottom: 2px;
+            text-align: left; margin-bottom: 2px; display: flex; align-items: flex-start; gap: 2px; line-height: 1.3;
+        }
+        .host-label { font-weight: 700; color: var(--text-muted); font-size: clamp(0.8rem, 2.5vw, 0.95rem); white-space: nowrap; }
+        .book-name, .host-name { font-family: 'DM Sans', sans-serif; flex-grow: 1; font-weight: 700; color: var(--text-muted); font-size: clamp(0.8rem, 2.5vw, 0.95rem); outline: none; padding: 0 2px; background-color: transparent; }
+        .book-name:empty::before, .host-name:empty::before { content: attr(placeholder); opacity: 0.4; font-style: italic; font-weight: 400; }
+        
+        .divider { border-bottom: 1px dashed var(--text-muted); margin: 6px 0; opacity: 0.25; }
+
+        /* LISTAS E REORDENAÇÃO */
+        .queue-container { text-align: left; margin-top: 2px; }
+        
+        .queue-header-row {
             display: flex;
-            align-items: flex-start;
-            gap: 2px;
-            line-height: 1.3;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px; 
         }
 
-        .host-label {
-            font-weight: 700;
-            color: var(--text-muted);
-            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-            white-space: nowrap;
-        }
+        .queue-label { font-weight: 700; color: var(--text-muted); font-size: clamp(0.8rem, 2.5vw, 0.95rem); margin-bottom: 0px; display: inline-block; }
+        .history-controls-bar { display: flex; justify-content: flex-end; gap: 6px; align-items: center; margin-bottom: 0px; }
+        .history-mini-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.8rem; padding: 2px 4px; opacity: 0.5; transition: 0.2s; }
+        .history-mini-btn:hover { opacity: 1; color: var(--accent); }
 
-        .book-name, .host-name {
-            font-family: 'DM Sans', sans-serif;
-            flex-grow: 1;
-            font-weight: 700;
-            color: var(--text-muted);
-            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-            outline: none;
-            padding: 0 2px;
-            white-space: normal;
-            word-break: break-word;
-            background-color: transparent; 
-            border-radius: 0;
-        }
+        .script-columns-container { display: flex; width: 100%; align-items: stretch; }
+        .queue-column { display: flex; flex-direction: column; }
+        
+        .column-left { width: var(--char-width, 50%); flex-shrink: 0; }
+        .theme-sepia .column-left { border-right: 1px dashed rgba(35, 28, 22, 0.15); }
+        .theme-white .column-left { border-right: 1px dashed rgba(0, 0, 0, 0.1); }
+        .theme-black .column-left { border-right: 1px dashed rgba(255, 255, 255, 0.1); }
 
-        .book-name:empty::before, .host-name:empty::before {
-            content: attr(placeholder);
-            opacity: 0.4;
-            font-style: italic;
-            font-weight: 400;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: inline-block;
-            max-width: 100%;
-            vertical-align: top;
-        }
+        html.mode-script .column-right { flex-grow: 1; width: calc(100% - var(--char-width, 50%)); }
+        html:not(.mode-script) .column-right { width: 100%; }
 
-        .divider {
-            border-bottom: 1px dashed var(--text-muted);
-            margin: 12px 0 10px 0;
-            opacity: 0.5;
-        }
+        html:not(.mode-script) .column-left, html:not(.mode-script) .resize-handle { display: none !important; }
 
-        /* 5. ARQUITETURA DE COLUNAS LADO A LADO */
-        .queue-container {
-            text-align: left;
-            margin-top: 2px;
-        }
+        .queue-header-title { display: none; font-size: clamp(0.7rem, 2vw, 0.8rem); font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        html.mode-script .queue-header-title { display: block; }
+        html.mode-script .column-left .queue-header-title { padding-left: 32px; text-align: left; }
+        html.mode-script .column-right .queue-header-title { padding-left: 14px; text-align: left; }
 
-        .queue-label {
-            font-weight: 700;
-            color: var(--text-muted);
-            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-            margin-bottom: 24px; 
-            display: block;
-        }
+        .resize-handle { width: 14px; cursor: col-resize; margin: 0 -7px; z-index: 10; position: relative; flex-shrink: 0; }
+        .resize-handle::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%); background: rgba(0, 0, 0, 0.04); }
+        .resize-handle:hover::after, .resize-handle.dragging::after { background: var(--accent); }
 
-        .script-columns-container {
-            display: flex;
-            width: 100%;
-            align-items: stretch;
-        }
-
-        .queue-column {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .column-left {
-            width: var(--char-width, 50%);
-            flex-shrink: 0;
-        }
-
-        html.mode-script .column-right {
-            flex-grow: 1;
-            width: calc(100% - var(--char-width, 50%));
-        }
-
-        html:not(.mode-script) .column-right {
-            width: 100%;
-        }
-
-        html:not(.mode-script) .column-left,
-        html:not(.mode-script) .resize-handle {
-            display: none !important;
-        }
-
-        /* Títulos dos Cabeçalhos */
-        .queue-header-title {
-            display: none;
-            font-size: clamp(0.7rem, 2vw, 0.8rem);
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        html.mode-script .queue-header-title {
-            display: block;
-        }
-
-        html.mode-script .column-left .queue-header-title {
-            padding-left: 48px; 
-            text-align: left;
-        }
-
-        html.mode-script .column-right .queue-header-title {
-            padding-left: 14px;
-            text-align: left; 
-        }
-
-        /* Barra de Arrasto Vertical Contínua */
-        .resize-handle {
-            width: 14px;
-            cursor: col-resize;
-            margin: 0 -7px;
-            z-index: 10;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .resize-handle::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 2px;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.1);
-            transition: background 0.2s;
-        }
-
-        .theme-black .resize-handle::after {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .resize-handle:hover::after, .resize-handle.dragging::after {
-            background: var(--accent);
-        }
-
-        /* Estilização das Listas */
-        .queue-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
+        .queue-list { list-style: none; padding: 0; margin: 0; }
         html.mode-script .column-left .queue-list { counter-reset: reader-counter; }
         html:not(.mode-script) .column-right .queue-list { counter-reset: reader-counter; }
 
-        .queue-list li {
-            background-color: var(--border-item);
-            padding: clamp(4px, 1.5vw, 6px) 14px;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            position: relative; 
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            min-height: 38px;
+        .queue-list li { 
+            background-color: var(--border-item); 
+            padding: calc(clamp(4px, 1.5vw, 6px) * var(--row-scale)) calc(10px * var(--row-scale)) !important; 
+            margin-bottom: calc(4px * var(--row-scale)) !important; 
+            display: flex; align-items: center; position: relative; 
+            min-height: calc(38px * var(--row-scale)) !important; 
         }
+        .column-left .queue-list li { border-left: calc(4px * var(--row-scale)) solid var(--accent); border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        html.mode-script .column-right .queue-list li { border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding-left: calc(10px * var(--row-scale)) !important; padding-right: calc(36px * var(--row-scale)) !important; }
+        html:not(.mode-script) .column-right .queue-list li { border-left: calc(4px * var(--row-scale)) solid var(--accent); border-radius: 10px; }
 
-        /* Ajuste de Bordas Dinâmicas para Fusão Visual */
-        .column-left .queue-list li {
-            border-left: 4px solid var(--accent);
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-            padding-right: 8px;
-        }
+        .drag-handle { order: -1; cursor: grab; opacity: 0.4; margin-right: calc(2px * var(--row-scale)); font-size: calc(0.85rem * var(--row-scale)); user-select: none; display: inline-block; flex-shrink: 0; }
+        html.mode-script .column-right .drag-handle { display: none !important; }
+        .queue-list li.dragging-row { opacity: 0.4; background-color: var(--accent-light); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-        html.mode-script .column-right .queue-list li {
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 10px;
-            padding-left: 14px;
-            padding-right: 36px; 
+        .column-left .queue-list li::before, html:not(.mode-script) .column-right .queue-list li::before {
+            counter-increment: reader-counter; content: counter(reader-counter) "."; font-weight: 700; color: var(--accent); 
+            min-width: calc(14px * var(--row-scale)); text-align: right; margin-right: calc(6px * var(--row-scale)); 
+            font-size: calc(clamp(0.85rem, 2.5vw, 1rem) * var(--row-scale)) !important; display: inline-block; flex-shrink: 0;
         }
+        html.mode-script .column-right .queue-list li::before { content: none; }
 
-        html:not(.mode-script) .column-right .queue-list li {
-            border-left: 4px solid var(--accent);
-            border-radius: 10px;
-        }
+        .character-name, .reader-name { outline: none; font-size: calc(clamp(0.85rem, 2.5vw, 1rem) * var(--row-scale)) !important; font-weight: 700; white-space: nowrap; overflow: hidden; width: 100%; display: block; background: transparent; border: none; text-align: left; }
+        .character-name { color: var(--accent); }
+        .reader-name { color: var(--text-main); }
+        .character-name:not(:focus), .reader-name:not(:focus) { text-overflow: ellipsis; }
 
-        /* Numeração Condicional */
-        .column-left .queue-list li::before,
-        html:not(.mode-script) .column-right .queue-list li::before {
-            counter-increment: reader-counter;
-            content: counter(reader-counter) ".";
-            font-weight: 700;
-            color: var(--accent);
-            width: 20px;          
-            text-align: right;    
-            margin-right: 10px;   
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            display: inline-block;
-            flex-shrink: 0;
-        }
-
-        html.mode-script .column-right .queue-list li::before {
-            content: none;
-        }
-
-        /* Inputs de Texto Dentro das Colunas */
-        .character-name, .reader-name {
-            outline: none;
-            font-size: clamp(0.85rem, 2.5vw, 1rem);
-            font-weight: 700; 
-            white-space: nowrap;
-            overflow: hidden;
-            width: 100%;
-            display: block;
-            text-align: left; 
-            background: transparent; 
-            border: none;
-        }
-
-        .character-name {
-            color: var(--accent);
-        }
-
-        /* Exibe o texto completo sem cortar enquanto estiver editando */
-        .character-name:not(:focus), .reader-name:not(:focus) {
-            text-overflow: ellipsis;
-        }
-        .character-name:focus, .reader-name:focus {
-            text-overflow: clip;
-        }
-
-        /* Botão Lixeira Customizado */
         .delete-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-            opacity: 0;
-            transition: 0.2s;
-            width: 24px;
-            flex-shrink: 0;
-            text-align: center;
-            white-space: nowrap;
-            padding: 0;
-            user-select: none; 
-            z-index: 5;
+            position: absolute; right: calc(8px * var(--row-scale)); top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: calc(clamp(0.8rem, 2.5vw, 0.95rem) * var(--row-scale)); opacity: 0; transition: 0.2s; width: calc(24px * var(--row-scale)); text-align: center; z-index: 5;
         }
-
         .column-right .queue-list li:hover .delete-btn { opacity: 0.6; }
         .column-right .queue-list li:hover .delete-btn:hover { opacity: 1; transform: translateY(-50%) scale(1.15); }
 
-        .column-right .queue-list li:first-child .delete-btn {
-            display: none !important;
-        }
-
+        /* BOTÕES DE AÇÃO ALINHADOS À ESQUERDA */
         .add-btn {
-            width: 100%;
-            background: none;
-            border: 1px dashed var(--text-muted);
-            border-top: none; border-left: none; border-right: none;
-            padding: 10px 0;
-            margin-bottom: clamp(15px, 5vw, 25px);
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: clamp(0.75rem, 2.2vw, 0.85rem);
-            opacity: 0.5;
-            transition: 0.2s;
+            width: 100%; background: none; border: 1px dashed var(--text-muted); border-top: none; border-left: none; border-right: none; 
+            padding: 6px 8px; margin-bottom: 4px; color: var(--text-muted); cursor: pointer; 
+            font-size: clamp(0.65rem, 1.8vw, 0.75rem); opacity: 0.6; transition: 0.2s; font-weight: bold;
+            text-align: left;
         }
-
         .add-btn:hover { opacity: 1; color: var(--accent); border-color: var(--accent); }
 
-        /* 6. INFO BOXES */
-        .join-box, .help-box {
-            border-radius: 14px;
-            padding: 13.8px 18.4px; 
-            text-align: center;
-            margin-bottom: 13.8px; 
+        /* BALÕES DINÂMICOS */
+        .dynamic-box { 
+            border-radius: 14px; padding: 10px 14px 10px 4px; margin-bottom: 4px !important; 
+            position: relative; display: flex; align-items: center; 
+            gap: 0px !important;
+            background: var(--accent-light); border: 1px dashed var(--border-item); color: var(--text-main); font-weight: 600;
+        }
+        
+        .dynamic-box [contenteditable="true"] {
+            word-break: break-all !important; 
+            word-wrap: break-word !important; 
+            overflow-wrap: anywhere !important; 
+            white-space: pre-wrap !important;
+            outline: none; flex: 1; text-align: left !important;
+        }
+        
+        .dynamic-box .join-box-sub { 
+            font-size: 10px; color: var(--text-main);
+            font-weight: 600; font-style: normal; margin-top: 2px; 
+            text-align: left !important; opacity: 1; 
+        }
+        
+        .box-drag-handle { cursor: grab; opacity: 0.4; font-size: 0.85rem; user-select: none; padding: 0 4px; }
+        .box-drag-handle:active { cursor: grabbing; }
+        .dynamic-box.dragging-box { opacity: 0.35; border-style: dashed; }
+
+        .msg-box-ctrls {
+            position: absolute; top: 4px; right: 8px; display: flex; align-items: center; gap: 5px; 
+            opacity: 0; transition: opacity 0.2s ease-in-out;
+        }
+        .dynamic-box:hover .msg-box-ctrls { opacity: 1; }
+        .msg-box-ctrls button {
+            background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-main); padding: 1px 4px; border-radius: 3px; font-weight: bold;
+        }
+        .msg-box-ctrls button:hover { background: rgba(0,0,0,0.08); }
+
+        .text-menu-container {
+            display: none; flex-direction: column; gap: 8px; margin-bottom: 12px;
+            background: rgba(0,0,0,0.015); padding: 12px; border-radius: 14px;
+            border: 1px dashed var(--border-item); text-align: left;
         }
 
-        .join-box {
-            background: var(--accent-light);
-            border: 1px dashed var(--accent);
-            font-weight: 600;
+        .timer-input-field {
+            width: 48px; padding: 4px; border-radius: 6px; border: 1px solid var(--border-item);
+            background: var(--card-bg); color: var(--text-main); font-weight: bold; text-align: center; outline: none;
         }
 
-        .join-box div { font-size: clamp(0.7866rem, 2.5921vw, 1.01775rem); } 
-
-        .join-box .join-box-sub {
-            font-size: clamp(0.6486rem, 2.03665vw, 0.83375rem); 
-            opacity: 0.8;
-            font-weight: 500;
-            margin-top: 2px; 
+        @keyframes timer-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
-        .help-box {
-            background: rgba(0,0,0,0.01);
-            border: 1px solid var(--border-item);
-            color: var(--text-muted);
-            line-height: 1.5;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        .credits { 
+            position: relative; margin-top: 15px; margin-bottom: 5px; text-align: center;
+            font-size: 10px !important; color: var(--text-main) !important; 
+            font-style: normal !important; opacity: 1 !important; font-weight: 600 !important; 
         }
+    </style></head>
+    
+    <body class="theme-white has-pdf">
 
-        .help-box div { font-size: clamp(0.6946rem, 2.2218vw, 0.87975rem); } 
+    <button class="pdf-add-btn" id="pdfToggleBtn" onclick="togglePdfContainer()" title="Toggle PDF Viewer"><i class="fa-solid fa-file-pdf"></i></button>
+    <input type="file" id="pdfInput" accept="application/pdf" style="display: none;" onchange="handlePdfUpload(event)">
 
-        .credits {
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            font-size: clamp(0.575rem, 2.07vw, 0.7475rem); 
-            color: var(--text-muted);
-            font-style: italic;
-            opacity: 0.5;
-            user-select: none;
-            pointer-events: none;
-            text-align: right;
-        }
-
-        @media (max-width: 450px) {
-            .top-utility-bar { top: 10px; left: 10px; right: 10px; }
-        }
-    </style></head><body>
-
-    <div class="top-utility-bar">
-        <div class="mode-switcher">
-            <button class="mode-btn active-mode" id="btnBook" onclick="setMode('book')">Book</button>
-            <button class="mode-btn" id="btnScript" onclick="setMode('script')">Script</button>
-        </div>
-
-        <div class="right-controls">
-            <div class="zoom-controls">
-                <button class="zoom-btn" onclick="zoomOut()">-</button>
-                <button class="zoom-btn" onclick="zoomIn()">+</button>
-            </div>
-
-            <div class="theme-switcher">
-                <div class="theme-btn btn-white" onclick="setTheme('white')"></div>
-                <div class="theme-btn btn-sepia active-theme" onclick="setTheme('sepia')"></div>
-                <div class="theme-btn btn-black" onclick="setTheme('black')"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <h1>📖 Reading Session</h1>
-        <p class="subtitle">Just for fun — this is not a formal class! 🪶✨</p>
-
-        <div class="host-container">
-            <span class="host-label" id="hostLabelBook">Book:</span>
-            <span class="book-name" contenteditable="true" placeholder="Click to type book's name" tabIndex="1"></span>
-        </div>
-
-        <div class="host-container">
-            <span class="host-label">Hosted by:</span>
-            <span class="host-name" contenteditable="true" placeholder="Click to type host's name" tabIndex="2"></span>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="queue-container">
-            <span class="queue-label">Reading Order:</span>
-            
-            <div class="script-columns-container">
-                <div class="queue-column column-left">
-                    <div class="queue-header-title">Character</div>
-                    <ul class="queue-list" id="leftQueueList">
-                        <li><span class="character-name" contenteditable="true" tabIndex="3"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="5"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="7"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="9"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="11"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="13"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="15"></span></li>
-                        <li><span class="character-name" contenteditable="true" tabIndex="17"></span></li>
-                    </ul>
+    <div class="workspace-layout">
+        <div class="pdf-viewer-container pdf-theme-white" id="pdfViewerContainer">
+            <div class="pdf-toolbar">
+                <div class="pdf-toolbar-group pdf-close-wrapper">
+                    <button onclick="clearAndResetPdfViewer()" title="Clear Document"><i class="fa-solid fa-xmark" style="font-size: 1rem;"></i></button>
+                </div>
+                
+                <div class="pdf-toolbar-group">
+                    <button onclick="changePdfZoom(-0.15)" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                    <input type="text" id="pdfZoomInput" value="200%" style="width: 65px; text-align: center; background: transparent; border: none; font-size: 0.75rem; font-weight: bold; color: var(--text-main); outline: none; padding: 0;">
+                    <button onclick="changePdfZoom(0.15)" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
                 </div>
 
-                <div class="resize-handle"></div>
-
-                <div class="queue-column column-right">
-                    <div class="queue-header-title">&nbsp;&nbsp;&nbsp;&nbsp;Reader</div>
-                    <ul class="queue-list" id="rightQueueList">
-                        <li><span class="reader-name" contenteditable="true" tabIndex="4"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="6"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="8"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="10"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="12"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="14"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="16"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                        <li><span class="reader-name" contenteditable="true" tabIndex="18"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
-                    </ul>
+                <div class="pdf-toolbar-group" id="pdfPageNavGroup">
+                    <button onclick="prevPdfPage()" title="Previous Page"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="pdfPageNumDisplay" style="font-size: 0.75rem; font-weight: bold; color: var(--text-main); min-width: 75px; text-align: center;">Page 1 / 1</span>
+                    <button onclick="nextPdfPage()" title="Next Page"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
+
+                <div class="pdf-toolbar-group">
+                    <button onclick="setPdfViewMode('single')" id="btnPdfSingle" class="active-pdf-ctrl" title="Single Page View"><i class="fa-solid fa-file"></i></button>
+                    <button onclick="setPdfViewMode('double')" id="btnPdfDouble" title="Split Screen Page View"><i class="fa-solid fa-book-open"></i></button>
+                </div>
+            </div>
+
+            <div id="pdfProgressTracker" class="pdf-progress-tracker">0% read</div>
+
+            <div class="pdf-scroll-area">
+                <div id="pdfDropZone" class="pdf-drop-zone" onclick="document.getElementById('pdfInput').click()">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.3rem; margin-bottom: 12px; opacity: 0.6; color: var(--accent);"></i>
+                    <div style="font-weight: 700; font-size: 1.05rem; margin-bottom: 4px;">Drag & Drop your PDF here</div>
+                    <div style="font-size: 0.8rem; opacity: 0.6;">or click to browse local files</div>
+                </div>
+                <div id="pdfPagesTarget"></div>
             </div>
         </div>
 
-        <button class="add-btn" onclick="addReader()">➕ Add Reader</button>
+        <div class="workspace-resize-handle" id="workspaceResizeHandle"></div>
 
-        <div class="join-box">
-            <div>💬 Wanna join us? Say it in the chat, please!</div>
-            <div class="join-box-sub">Or, you can just unmute yourself and say you'd like to read.</div>
+        <div class="content-scroll-wrapper">
+            <div class="top-utility-bar">
+                <div class="mode-switcher">
+                    <button class="mode-btn active-mode" id="btnBook" onclick="setMode('book')">Book</button>
+                    <button class="mode-btn" id="btnScript" onclick="setMode('script')">Script</button>
+                </div>
+
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomOut()">-</button>
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                </div>
+
+                <div class="theme-switcher">
+                    <div class="theme-btn btn-white active-theme" onclick="setTheme('white')"></div>
+                    <div class="theme-btn btn-sepia" onclick="setTheme('sepia')"></div>
+                    <div class="theme-btn btn-black" onclick="setTheme('black')"></div>
+                </div>
+            </div>
+
+            <div class="container">
+                <h1>📖 Reading Session</h1>
+                <p class="subtitle">Just for fun — this is not a formal class! 🪶✨</p>
+
+                <div class="host-container">
+                    <span class="host-label" id="hostLabelBook">Book:</span>
+                    <span class="book-name" contenteditable="true" placeholder="Click to type book's name" tabIndex="1"></span>
+                </div>
+
+                <div class="host-container">
+                    <span class="host-label">Hosted by:</span>
+                    <span class="host-name" contenteditable="true" placeholder="Click to type host's name" tabIndex="2"></span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="queue-container">
+                    <div class="queue-header-row">
+                        <span class="queue-label">Reading Order:</span>
+                        <div class="history-controls-bar">
+                            <button class="history-mini-btn" onclick="changeRowScale(-0.05)" title="Decrease row size"><i class="fa-solid fa-minus"></i></button>
+                            <button class="history-mini-btn" onclick="changeRowScale(0.05)" title="Increase row size"><i class="fa-solid fa-plus"></i></button>
+                            <span style="opacity:0.25; margin: 0 2px; font-size:0.75rem;">|</span>
+                            <button class="history-mini-btn" onclick="undoState()" title="Undo"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                            <button class="history-mini-btn" onclick="redoState()" title="Redo"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="script-columns-container">
+                        <div class="queue-column column-left">
+                            <div class="queue-header-title">Character</div>
+                            <ul class="queue-list" id="leftQueueList">
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="3"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="5"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="7"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="9"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="11"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="13"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="15"></span></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="17"></span></li>
+                            </ul>
+                        </div>
+
+                        <div class="resize-handle"></div>
+
+                        <div class="queue-column column-right">
+                            <div class="queue-header-title">&nbsp;&nbsp;&nbsp;&nbsp;Reader</div>
+                            <ul class="queue-list" id="rightQueueList">
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="4"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="6"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="8"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="10"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="12"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="14"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="16"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                                <li><span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="18"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-btn" onclick="addReader()">➕ Add Reader</button>
+                <button class="add-btn" onclick="toggleAddTextMenu()">➕ Add Message Box</button>
+                
+                <div id="addTextMenu" class="text-menu-container">
+                    <div style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">CHOOSE A BOX STYLE TO ADD:</div>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="mode-btn active-mode" style="font-size: 0.7rem; padding: 4px 8px;" onclick="addDynamicMessageBox('join')">✨ Preset: Join Us</button>
+                        <button class="mode-btn active-mode" style="font-size: 0.7rem; padding: 4px 8px;" onclick="addDynamicMessageBox('help')">💡 Preset: Meaning</button>
+                        <button class="mode-btn active-mode" style="font-size: 0.7rem; padding: 4px 8px;" onclick="addDynamicMessageBox('blank')">💬 Blank Custom Box</button>
+                    </div>
+                </div>
+
+                <button class="add-btn" onclick="toggleAddTimerMenu()">➕ Add Countdown Timer</button>
+                
+                <div id="addTimerMenu" class="text-menu-container">
+                    <div style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted); margin-bottom: 6px;">SET TIMER COUNTDOWN:</div>
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <input type="number" id="timerHours" placeholder="HH" min="0" max="23" class="timer-input-field">
+                        <span style="font-weight: bold; opacity: 0.6;">:</span>
+                        <input type="number" id="timerMinutes" placeholder="MM" min="0" max="59" class="timer-input-field">
+                        <span style="font-weight: bold; opacity: 0.6;">:</span>
+                        <input type="number" id="timerSeconds" placeholder="SS" min="0" max="59" class="timer-input-field">
+                        <button class="mode-btn active-mode" style="font-size: 0.7rem; padding: 5px 10px;" onclick="createCountdownTimerBox()">⏱️ Add Timer</button>
+                    </div>
+                </div>
+
+                <div id="dynamicTextsContainer"></div>
+
+                <div class="credits">Made with passion by Kevin Ricardino for all readers. ❤️</div>
+            </div>
         </div>
-
-        <div class="help-box">
-            <div>💡 Confused about a word or its meaning? Just let us know! We will look it up together, word by word, with no rush at all! ^^</div>
-        </div>
-
-        <div class="credits">Made with passion by Casper for all readers. ❤️</div>
     </div>
 
     <script>
+        let currentZoom = 0.95;
+
         function setTheme(theme) {
             document.documentElement.classList.remove('theme-white', 'theme-black', 'theme-sepia');
             document.documentElement.classList.add('theme-' + theme);
+            document.querySelectorAll('.theme-switcher .theme-btn').forEach(b => b.classList.remove('active-theme'));
+            const activeBtn = document.querySelector('.theme-switcher .btn-' + theme);
+            if(activeBtn) activeBtn.classList.add('active-theme');
             
-            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
-            document.querySelector('.btn-' + theme).classList.add('active-theme');
+            setPdfTheme(theme);
         }
 
         function setMode(mode) {
@@ -675,39 +744,27 @@
             const favicon = document.getElementById('favicon');
 
             if(mode === 'script') {
-                title.innerHTML = '🎭 Script Reading';
-                document.title = 'Script Reading';
+                title.innerHTML = '🎭 Script Reading'; document.title = 'Script Reading';
                 favicon.setAttribute('href', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>');
-                btnScript.classList.add('active-mode');
-                btnBook.classList.remove('active-mode');
-                document.documentElement.classList.add('mode-script');
-                hostLabelBook.innerText = 'Script:';
+                btnScript.classList.add('active-mode'); btnBook.classList.remove('active-mode');
+                document.documentElement.classList.add('mode-script'); hostLabelBook.innerText = 'Script:';
                 bookName.setAttribute('placeholder', "Click to type script's name");
             } else {
-                title.innerHTML = '📖 Reading Session';
-                document.title = 'Reading Session';
+                title.innerHTML = '📖 Reading Session'; document.title = 'Reading Session';
                 favicon.setAttribute('href', 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>');
-                btnBook.classList.add('active-mode');
-                btnScript.classList.remove('active-mode');
-                document.documentElement.classList.remove('mode-script');
-                hostLabelBook.innerText = 'Book:';
+                btnBook.classList.add('active-mode'); btnScript.classList.remove('active-mode');
+                document.documentElement.classList.remove('mode-script'); hostLabelBook.innerText = 'Book:';
                 bookName.setAttribute('placeholder', "Click to type book's name");
             }
         }
 
-        // Lógica de Zoom
-        let currentZoom = 1;
-        function zoomIn() {
-            if (currentZoom < 1.4) {
-                currentZoom += 0.05;
-                document.documentElement.style.setProperty('--zoom-factor', currentZoom);
-            }
-        }
-        function zoomOut() {
-            if (currentZoom > 0.75) {
-                currentZoom -= 0.05;
-                document.documentElement.style.setProperty('--zoom-factor', currentZoom);
-            }
+        function zoomIn() { if (currentZoom < 1.4) { currentZoom += 0.05; document.documentElement.style.setProperty('--zoom-factor', currentZoom); } }
+        function zoomOut() { if (currentZoom > 0.75) { currentZoom -= 0.05; document.documentElement.style.setProperty('--zoom-factor', currentZoom); } }
+
+        let currentRowScale = 1;
+        function changeRowScale(amount) {
+            currentRowScale = Math.max(0.5, Math.min(1.5, currentRowScale + amount));
+            document.documentElement.style.setProperty('--row-scale', currentRowScale);
         }
 
         let lastTabIndex = 18; 
@@ -716,132 +773,732 @@
             const rightList = document.getElementById('rightQueueList');
             
             const leftLi = document.createElement('li');
-            leftLi.innerHTML = '<span class="character-name" contenteditable="true" tabIndex="' + (lastTabIndex + 1) + '"></span>';
+            leftLi.innerHTML = '<span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true" tabIndex="' + (lastTabIndex + 1) + '"></span>';
             
             const rightLi = document.createElement('li');
-            rightLi.innerHTML = '<span class="reader-name" contenteditable="true" tabIndex="' + (lastTabIndex + 2) + '"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button>';
+            rightLi.innerHTML = '<span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true" tabIndex="' + (lastTabIndex + 2) + '"></span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button>';
             
-            leftList.appendChild(leftLi);
-            rightList.appendChild(rightLi);
-            lastTabIndex += 2;
+            leftList.appendChild(leftLi); rightList.appendChild(rightLi); lastTabIndex += 2;
             
-            if (focusTarget === 'reader') {
-                rightLi.querySelector('.reader-name').focus();
-            } else if (focusTarget === 'character') {
-                leftLi.querySelector('.character-name').focus();
-            } else {
-                if (document.documentElement.classList.contains('mode-script')) {
-                    leftLi.querySelector('.character-name').focus();
-                } else {
-                    rightLi.querySelector('.reader-name').focus();
-                }
+            if (focusTarget === 'reader') { rightLi.querySelector('.reader-name').focus(); } 
+            else if (focusTarget === 'character') { leftLi.querySelector('.character-name').focus(); } 
+            else {
+                if (document.documentElement.classList.contains('mode-script')) { leftLi.querySelector('.character-name').focus(); } 
+                else { rightLi.querySelector('.reader-name').focus(); }
             }
+            setupDragAndDrop(); saveState();
         }
 
         function deleteReader(btn) {
-            const rightLi = btn.closest('li');
-            const rightList = rightLi.parentElement;
+            const rightLi = btn.closest('li'); const rightList = rightLi.parentElement;
             const index = Array.from(rightList.children).indexOf(rightLi);
+            const leftList = document.getElementById('leftQueueList'); const leftLi = leftList.children[index];
             
-            const leftList = document.getElementById('leftQueueList');
-            const leftLi = leftList.children[index];
-            
-            if (leftLi) leftLi.remove();
-            rightLi.remove();
+            if (index === 0) {
+                if (leftLi) leftLi.querySelector('.character-name').innerText = '';
+                rightLi.querySelector('.reader-name').innerText = ''; saveState();
+            } else {
+                if (leftLi) leftLi.remove(); rightLi.remove(); saveState();
+            }
         }
 
         function handleSmartNavigation(e) {
             const target = e.target;
-
-            if (target.classList.contains('book-name')) {
-                document.querySelector('.host-name').focus();
-            } 
+            if (target.classList.contains('book-name')) { document.querySelector('.host-name').focus(); } 
             else if (target.classList.contains('host-name')) {
-                if (document.documentElement.classList.contains('mode-script')) {
-                    const firstLeft = document.querySelector('#leftQueueList li .character-name');
-                    if (firstLeft) firstLeft.focus();
-                } else {
-                    const firstRight = document.querySelector('#rightQueueList li .reader-name');
-                    if (firstRight) firstRight.focus();
-                }
+                if (document.documentElement.classList.contains('mode-script')) { document.querySelector('#leftQueueList li .character-name')?.focus(); } 
+                else { document.querySelector('#rightQueueList li .reader-name')?.focus(); }
             } 
             else if (target.classList.contains('character-name')) {
-                const currentLi = target.closest('li');
-                const leftList = currentLi.parentElement;
-                const index = Array.from(leftList.children).indexOf(currentLi);
-                
-                const rightList = document.getElementById('rightQueueList');
-                const matchingReader = rightList.children[index]?.querySelector('.reader-name');
-                if (matchingReader) matchingReader.focus();
+                const idx = Array.from(target.closest('li').parentElement.children).indexOf(target.closest('li'));
+                document.getElementById('rightQueueList').children[idx]?.querySelector('.reader-name')?.focus();
             } 
             else if (target.classList.contains('reader-name')) {
-                const currentLi = target.closest('li');
-                const rightList = currentLi.parentElement;
-                const index = Array.from(rightList.children).indexOf(currentLi);
-                const nextIndex = index + 1;
-                
+                const idx = Array.from(target.closest('li').parentElement.children).indexOf(target.closest('li')) + 1;
                 if (document.documentElement.classList.contains('mode-script')) {
-                    const leftList = document.getElementById('leftQueueList');
-                    const nextCharacter = leftList.children[nextIndex]?.querySelector('.character-name');
-                    if (nextCharacter) {
-                        nextCharacter.focus();
-                    } else {
-                        addReader('character');
-                    }
+                    const nextChar = document.getElementById('leftQueueList').children[idx]?.querySelector('.character-name');
+                    if (nextChar) nextChar.focus(); else addReader('character');
                 } else {
-                    const nextReader = rightList.children[nextIndex]?.querySelector('.reader-name');
-                    if (nextReader) {
-                        nextReader.focus();
-                    } else {
-                        addReader('reader');
-                    }
+                    const nextReader = document.getElementById('rightQueueList').children[idx]?.querySelector('.reader-name');
+                    if (nextReader) nextReader.focus(); else addReader('reader');
                 }
             }
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === 'Tab') {
-                e.preventDefault();
-                handleSmartNavigation(e);
+        document.addEventListener('keydown', (e) => { 
+            if (e.target.closest('.dynamic-box')) return; 
+            if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); handleSmartNavigation(e); } 
+        });
+        document.addEventListener('blur', (e) => { if (e.target.classList.contains('character-name') || e.target.classList.contains('reader-name')) e.target.scrollLeft = 0; }, true);
+
+        // Divisória Interna
+        const handle = document.querySelector('.resize-handle');
+        const internalContainer = document.querySelector('.script-columns-container');
+        if (handle && internalContainer) {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault(); handle.classList.add('dragging');
+                const containerRect = internalContainer.getBoundingClientRect();
+                const onMouseMove = (moveEvent) => {
+                    let percentage = ((moveEvent.clientX - containerRect.left) / containerRect.width) * 100;
+                    if (percentage < 28) percentage = 28; if (percentage > 85) percentage = 85;
+                    document.documentElement.style.setProperty('--char-width', percentage + '%');
+                };
+                const onMouseUp = () => { handle.classList.remove('dragging'); document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); };
+                document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
+            });
+        }
+
+        /* BARRA DE REDIMENSIONAMENTO DO WORKSPACE PRINCIPAL */
+        const wsHandle = document.getElementById('workspaceResizeHandle');
+        const wsLayout = document.querySelector('.workspace-layout');
+        if (wsHandle && wsLayout) {
+            wsHandle.addEventListener('mousedown', (e) => {
+                e.preventDefault(); 
+                document.body.classList.add('dragging-workspace');
+                wsHandle.classList.add('dragging');
+                const onMouseMove = (moveEvent) => {
+                    const rect = wsLayout.getBoundingClientRect();
+                    let percentage = ((moveEvent.clientX - rect.left) / rect.width) * 100;
+                    if (percentage < 3) percentage = 3;
+                    if (percentage > 97) percentage = 97;
+                    document.documentElement.style.setProperty('--pdf-width', percentage + '%');
+                };
+                const onMouseUp = () => { 
+                    document.body.classList.remove('dragging-workspace');
+                    wsHandle.classList.remove('dragging'); 
+                    document.removeEventListener('mousemove', onMouseMove); 
+                    document.removeEventListener('mouseup', onMouseUp); 
+                };
+                document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
+            });
+        }
+
+        /* GESTÃO DE BALÕES DINÂMICOS */
+        let boxUniqueIdCounter = 0;
+
+        function toggleAddTextMenu() {
+            const menu = document.getElementById('addTextMenu');
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+            document.getElementById('addTimerMenu').style.display = 'none';
+        }
+
+        function toggleAddTimerMenu() {
+            const menu = document.getElementById('addTimerMenu');
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+            document.getElementById('addTextMenu').style.display = 'none';
+        }
+
+        function addDynamicMessageBox(type) {
+            boxUniqueIdCounter++;
+            const currentBoxId = 'box_uid_' + boxUniqueIdCounter;
+            
+            const container = document.getElementById('dynamicTextsContainer');
+            const box = document.createElement('div');
+            box.id = currentBoxId;
+            box.className = 'dynamic-box'; 
+            
+            let innerHTML = `<span class="box-drag-handle">⋮⋮</span>`;
+            
+            if (type === 'join') {
+                innerHTML += `<div style="flex:1;"><div contenteditable="true" style="font-size: 10px;">✨ Wanna join us? Say it in the chat, please!</div>
+                              <div class="join-box-sub" contenteditable="true">Or, you can just unmute yourself and say you'd like to read.</div></div>`;
+            } else if (type === 'help') {
+                innerHTML += `<div style="flex:1; font-size: 10px;" contenteditable="true">💡 Confused about a word or its meaning? Just let us know! We will look it up together, word by word, with no rush at all! ^^</div>`;
+            } else {
+                innerHTML += `<div style="flex:1; outline:none; font-size: 10px; opacity: 0.5;" contenteditable="true" onfocus="if(this.innerText.trim() === '💬 Click here to type your custom note...') { this.innerText = ''; this.style.opacity = '1'; }">💬 Click here to type your custom note...</div>`;
+            }
+            
+            innerHTML += `<div class="msg-box-ctrls">
+                            <button onclick="changeBoxFontSize('${currentBoxId}', -2)">-</button>
+                            <button onclick="changeBoxFontSize('${currentBoxId}', 2)">+</button>
+                            <button onclick="document.getElementById('${currentBoxId}').remove();">✕</button>
+                          </div>`;
+            
+            box.innerHTML = innerHTML;
+            container.appendChild(box);
+            
+            document.getElementById('addTextMenu').style.display = 'none';
+            setupBoxDragAndDrop();
+        }
+
+        /* TIMER MODULE */
+        function createCountdownTimerBox() {
+            if (document.querySelector('[id^="timer_uid_"]')) {
+                alert("Only one countdown timer is allowed at a time!");
+                return;
+            }
+
+            boxUniqueIdCounter++;
+            const currentBoxId = 'timer_uid_' + boxUniqueIdCounter;
+            
+            let hrs = parseInt(document.getElementById('timerHours').value) || 0;
+            let mins = parseInt(document.getElementById('timerMinutes').value) || 0;
+            let secs = parseInt(document.getElementById('timerSeconds').value) || 0;
+            
+            let totalSeconds = (hrs * 3600) + (mins * 60) + secs;
+            if (totalSeconds <= 0) totalSeconds = 60;
+            
+            const container = document.getElementById('dynamicTextsContainer');
+            const box = document.createElement('div');
+            box.id = currentBoxId;
+            box.className = 'dynamic-box';
+            box.setAttribute('data-secs', totalSeconds);
+            box.setAttribute('data-initial', totalSeconds);
+            box.setAttribute('data-active', 'false');
+            
+            let innerHTML = `<span class="box-drag-handle">⋮⋮</span>`;
+            innerHTML += `<div style="flex:1; display:flex; align-items:center; gap:10px;">
+                            <span class="timer-digits" style="font-size: 1.1rem; font-family: monospace; font-weight: 700; color: var(--text-main);">00:00:00</span>
+                            
+                            <div class="timer-edit-inputs" style="display:none; gap:4px; align-items:center;">
+                                <input type="number" class="timer-edit-h" value="${hrs}" style="width:36px; text-align:center; font-weight:bold; border:1px solid var(--border-item); background:var(--card-bg); color:var(--text-main); border-radius:4px;">:
+                                <input type="number" class="timer-edit-m" value="${mins}" style="width:36px; text-align:center; font-weight:bold; border:1px solid var(--border-item); background:var(--card-bg); color:var(--text-main); border-radius:4px;">:
+                                <input type="number" class="timer-edit-s" value="${secs}" style="width:36px; text-align:center; font-weight:bold; border:1px solid var(--border-item); background:var(--card-bg); color:var(--text-main); border-radius:4px;">
+                            </div>
+
+                            <button class="timer-toggle-btn" onclick="toggleTimerClock('${currentBoxId}')" style="background:var(--card-bg); border:1px solid var(--border-item); color:var(--text-main); font-size:0.65rem; font-weight:bold; padding:2px 6px; border-radius:6px; cursor:pointer;">Start</button>
+                            <button class="timer-edit-btn" onclick="editTimerClock('${currentBoxId}')" style="background:var(--card-bg); border:1px solid var(--border-item); color:var(--text-main); font-size:0.65rem; font-weight:bold; padding:2px 6px; border-radius:6px; cursor:pointer;">Edit</button>
+                            <button onclick="resetTimerClock('${currentBoxId}')" style="background:var(--card-bg); border:1px solid var(--border-item); color:var(--text-main); font-size:0.65rem; font-weight:bold; padding:2px 6px; border-radius:6px; cursor:pointer;">Reset</button>
+                          </div>`;
+            innerHTML += `<div class="msg-box-ctrls">
+                            <button onclick="clearInterval(window['int_'+'${currentBoxId}']); document.getElementById('${currentBoxId}').remove();">✕</button>
+                          </div>`;
+            
+            box.innerHTML = innerHTML;
+            container.appendChild(box);
+            
+            refreshTimerDisplay(currentBoxId);
+            document.getElementById('addTimerMenu').style.display = 'none';
+            
+            document.getElementById('timerHours').value = '';
+            document.getElementById('timerMinutes').value = '';
+            document.getElementById('timerSeconds').value = '';
+            
+            setupBoxDragAndDrop();
+        }
+
+        function refreshTimerDisplay(boxId) {
+            const box = document.getElementById(boxId);
+            if(!box) return;
+            let currentSecs = parseInt(box.getAttribute('data-secs'));
+            const digits = box.querySelector('.timer-digits');
+            
+            if(currentSecs <= 0) {
+                currentSecs = 0;
+                digits.innerHTML = `<span style="color: #7f1d1d; font-weight: bold; animation: timer-blink 1s infinite; font-family: 'DM Sans', sans-serif;">Time's up!</span>`;
+                return;
+            }
+            
+            let h = Math.floor(currentSecs / 3600);
+            let m = Math.floor((currentSecs % 3600) / 60);
+            let s = currentSecs % 60;
+            
+            digits.innerText = String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
+        }
+
+        function toggleTimerClock(boxId) {
+            const box = document.getElementById(boxId);
+            let isActive = box.getAttribute('data-active') === 'true';
+            const btn = box.querySelector('.timer-toggle-btn');
+            
+            if(!isActive) {
+                box.setAttribute('data-active', 'true');
+                btn.innerText = 'Pause';
+                window['int_' + boxId] = setInterval(() => {
+                    let currentSecs = parseInt(box.getAttribute('data-secs'));
+                    if(currentSecs <= 1) {
+                        box.setAttribute('data-secs', 0);
+                        refreshTimerDisplay(boxId);
+                        clearInterval(window['int_' + boxId]);
+                        box.setAttribute('data-active', 'false');
+                        btn.innerText = 'Start';
+                    } else {
+                        box.setAttribute('data-secs', currentSecs - 1);
+                        refreshTimerDisplay(boxId);
+                    }
+                }, 1000);
+            } else {
+                clearInterval(window['int_' + boxId]);
+                box.setAttribute('data-active', 'false');
+                btn.innerText = 'Start';
+            }
+        }
+
+        function editTimerClock(boxId) {
+            const box = document.getElementById(boxId);
+            const digits = box.querySelector('.timer-digits');
+            const editInputs = box.querySelector('.timer-edit-inputs');
+            const editBtn = box.querySelector('.timer-edit-btn');
+            const toggleBtn = box.querySelector('.timer-toggle-btn');
+            
+            if (editInputs.style.display === 'flex') {
+                let h = parseInt(box.querySelector('.timer-edit-h').value) || 0;
+                let m = parseInt(box.querySelector('.timer-edit-m').value) || 0;
+                let s = parseInt(box.querySelector('.timer-edit-s').value) || 0;
+                let total = (h * 3600) + (m * 60) + s;
+                if (total < 0) total = 0;
+                
+                box.setAttribute('data-initial', total);
+                box.setAttribute('data-secs', total);
+                
+                editInputs.style.display = 'none';
+                digits.style.display = 'inline';
+                editBtn.innerText = 'Edit';
+                toggleBtn.style.display = 'inline-block';
+                refreshTimerDisplay(boxId);
+            } else {
+                if (box.getAttribute('data-active') === 'true') {
+                    toggleTimerClock(boxId);
+                }
+                
+                let currentSecs = parseInt(box.getAttribute('data-secs'));
+                box.querySelector('.timer-edit-h').value = Math.floor(currentSecs / 3600);
+                box.querySelector('.timer-edit-m').value = Math.floor((currentSecs % 3600) / 60);
+                box.querySelector('.timer-edit-s').value = currentSecs % 60;
+                
+                digits.style.display = 'none';
+                editInputs.style.display = 'flex';
+                editBtn.innerText = 'Save';
+                toggleBtn.style.display = 'none';
+            }
+        }
+
+        function resetTimerClock(boxId) {
+            const box = document.getElementById(boxId);
+            clearInterval(window['int_' + boxId]);
+            box.setAttribute('data-active', 'false');
+            box.querySelector('.timer-toggle-btn').innerText = 'Start';
+            
+            box.querySelector('.timer-edit-inputs').style.display = 'none';
+            box.querySelector('.timer-digits').style.display = 'inline';
+            box.querySelector('.timer-edit-btn').innerText = 'Edit';
+            box.querySelector('.timer-toggle-btn').style.display = 'inline-block';
+
+            box.setAttribute('data-secs', box.getAttribute('data-initial'));
+            refreshTimerDisplay(boxId);
+        }
+
+        function changeBoxFontSize(boxId, amount) {
+            const box = document.getElementById(boxId);
+            const targets = box.querySelectorAll('[contenteditable="true"], .join-box-sub');
+            targets.forEach(el => {
+                let curSize = parseFloat(window.getComputedStyle(el).fontSize);
+                el.style.fontSize = (curSize + amount) + 'px';
+            });
+        }
+
+        /* DRAG AND DROP BALÕES */
+        let draggedBoxSrc = null;
+        function setupBoxDragAndDrop() {
+            const boxes = document.querySelectorAll('#dynamicTextsContainer .dynamic-box');
+            boxes.forEach(box => {
+                const handleBox = box.querySelector('.box-drag-handle');
+                handleBox.onmousedown = () => box.setAttribute('draggable', 'true');
+                handleBox.onmouseup = () => box.removeAttribute('draggable');
+                
+                box.ondragstart = function(e) {
+                    draggedBoxSrc = box;
+                    box.classList.add('dragging-box');
+                    e.dataTransfer.effectAllowed = 'move';
+                };
+                box.ondragend = function() {
+                    box.classList.remove('dragging-box');
+                    box.removeAttribute('draggable');
+                    draggedBoxSrc = null;
+                };
+                box.ondragover = function(e) {
+                    e.preventDefault();
+                    if (!draggedBoxSrc || draggedBoxSrc === box) return false;
+                    const container = document.getElementById('dynamicTextsContainer');
+                    const children = Array.from(container.children);
+                    const targetIdx = children.indexOf(box);
+                    const srcIdx = children.indexOf(draggedBoxSrc);
+                    if (targetIdx > srcIdx) {
+                        container.insertBefore(draggedBoxSrc, box.nextSibling);
+                    } else {
+                        container.insertBefore(draggedBoxSrc, box);
+                    }
+                    return false;
+                };
+            });
+        }
+
+        /* HISTÓRICO GLOBAL */
+        let historyStack = []; let redoStack = []; let isRestoringState = false;
+        function captureStateSnapshot() {
+            return JSON.stringify({
+                book: document.querySelector('.book-name').innerText,
+                host: document.querySelector('.host-name').innerText,
+                left: Array.from(document.getElementById('leftQueueList').children).map(li => li.querySelector('.character-name')?.innerText || ''),
+                right: Array.from(document.getElementById('rightQueueList').children).map(li => li.querySelector('.reader-name')?.innerText || '')
+            });
+        }
+        function saveState() {
+            if (isRestoringState) return;
+            const snap = captureStateSnapshot();
+            if (historyStack.length === 0 || historyStack[historyStack.length - 1] !== snap) { historyStack.push(snap); redoStack = []; }
+        }
+        function undoState() { if (historyStack.length > 1) { redoStack.push(historyStack.pop()); restoreStateSnapshot(historyStack[historyStack.length - 1]); } }
+        function redoState() { if (redoStack.length > 0) { const nextState = redoStack.pop(); historyStack.push(nextState); restoreStateSnapshot(nextState); } }
+        function restoreStateSnapshot(snapStr) {
+            isRestoringState = true; const state = JSON.parse(snapStr);
+            document.querySelector('.book-name').innerText = state.book; document.querySelector('.host-name').innerText = state.host;
+            const leftList = document.getElementById('leftQueueList'); const rightList = document.getElementById('rightQueueList');
+            leftList.innerHTML = ''; rightList.innerHTML = '';
+            state.left.forEach((val) => {
+                const li = document.createElement('li'); li.innerHTML = `<span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="character-name" contenteditable="true">${val}</span>`;
+                leftList.appendChild(li);
+            });
+            state.right.forEach((val) => {
+                const li = document.createElement('li'); li.innerHTML = `<span class="drag-handle" onmousedown="enableDrag(this)" onmouseup="disableDrag(this)">⋮⋮</span><span class="reader-name" contenteditable="true">${val}</span><button class="delete-btn" onclick="deleteReader(this)" tabIndex="-1">🗑️</button>`;
+                rightList.appendChild(li);
+            });
+            setupDragAndDrop(); isRestoringState = false;
+        }
+        document.addEventListener('input', (e) => { 
+            if(!e.target.closest('.dynamic-box')){
+                clearTimeout(window.stateTimeoutId); window.stateTimeoutId = setTimeout(saveState, 400); 
             }
         });
 
-        document.addEventListener('blur', (e) => {
-            if (e.target.classList.contains('character-name') || e.target.classList.contains('reader-name')) {
-                e.target.scrollLeft = 0;
-            }
-        }, true);
+        /* DRAG AND DROP FILA PELOS PONTINHOS */
+        let draggedIndexSrc = -1;
+        function enableDrag(handle) { handle.closest('li').setAttribute('draggable', 'true'); }
+        function disableDrag(handle) { handle.closest('li').removeAttribute('draggable'); }
 
-        // Lógica de Arrasto Dinâmico Contínuo da Divisória
-        const handle = document.querySelector('.resize-handle');
-        const container = document.querySelector('.script-columns-container');
-        
-        if (handle && container) {
-            handle.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                handle.classList.add('dragging');
-                
-                const containerRect = container.getBoundingClientRect();
-                
-                const onMouseMove = (moveEvent) => {
-                    const offsetPx = moveEvent.clientX - containerRect.left;
-                    let percentage = (offsetPx / containerRect.width) * 100;
-                    
-                    // Trava exatamente em 28% para o indicador não cobrir o texto "CHARACTER"
-                    if (percentage < 28) percentage = 28;
-                    if (percentage > 85) percentage = 85;
-                    
-                    document.documentElement.style.setProperty('--char-width', percentage + '%');
+        function setupDragAndDrop() {
+            const allItems = document.querySelectorAll('.queue-list li');
+            allItems.forEach(li => {
+                li.ondragstart = function(e) {
+                    draggedIndexSrc = Array.from(li.parentElement.children).indexOf(li);
+                    const leftQueue = document.getElementById('leftQueueList');
+                    const rightQueue = document.getElementById('rightQueueList');
+                    if (leftQueue.children[draggedIndexSrc]) leftQueue.children[draggedIndexSrc].classList.add('dragging-row');
+                    if (rightQueue.children[draggedIndexSrc]) rightQueue.children[draggedIndexSrc].classList.add('dragging-row');
+                    e.dataTransfer.effectAllowed = 'move';
                 };
-                
-                const onMouseUp = () => {
-                    handle.classList.remove('dragging');
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
+                li.ondragend = function() {
+                    document.querySelectorAll('.queue-list li').forEach(item => { item.classList.remove('dragging-row'); item.removeAttribute('draggable'); });
+                    draggedIndexSrc = -1; saveState();
                 };
-                
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
+                li.ondragover = function(e) {
+                    e.preventDefault(); if (draggedIndexSrc === -1) return false;
+                    const targetParent = li.parentElement; const currentLiIndex = Array.from(targetParent.children).indexOf(li);
+                    let activeDraggedIndex = -1;
+                    for (let i = 0; i < targetParent.children.length; i++) {
+                        if (targetParent.children[i].classList.contains('dragging-row')) { activeDraggedIndex = i; break; }
+                    }
+                    if (activeDraggedIndex !== -1 && activeDraggedIndex !== currentLiIndex) {
+                        const leftQueue = document.getElementById('leftQueueList'); const rightQueue = document.getElementById('rightQueueList');
+                        if (currentLiIndex > activeDraggedIndex) {
+                            leftQueue.insertBefore(leftQueue.children[activeDraggedIndex], leftQueue.children[currentLiIndex].nextSibling);
+                            rightQueue.insertBefore(rightQueue.children[activeDraggedIndex], rightQueue.children[currentLiIndex].nextSibling);
+                        } else {
+                            leftQueue.insertBefore(leftQueue.children[activeDraggedIndex], leftQueue.children[currentLiIndex]);
+                            rightQueue.insertBefore(rightQueue.children[activeDraggedIndex], rightQueue.children[currentLiIndex]);
+                        }
+                    }
+                    return false;
+                };
             });
         }
+
+        /* MOTOR DE RENDERIZAÇÃO DO PDF */
+        let currentPdfDoc = null;
+        let pdfScale = 2.0; 
+        let pdfViewMode = 'single';
+        let currentPageNum = 1;
+        let currentRenderTaskId = 0; 
+
+        function togglePdfContainer() { document.body.classList.toggle('has-pdf'); }
+
+        function clearAndResetPdfViewer() {
+            currentPdfDoc = null;
+            currentPageNum = 1;
+            document.getElementById('pdfPagesTarget').innerHTML = '';
+            document.getElementById('pdfDropZone').style.display = 'flex';
+            document.getElementById('pdfInput').value = '';
+            document.getElementById('pdfProgressTracker').innerText = '0% read';
+            document.getElementById('pdfPageNumDisplay').innerText = 'Page 1 / 1';
+        }
+
+        async function handlePdfUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === "application/pdf") {
+                document.getElementById('pdfDropZone').style.display = 'none';
+                const targetContainer = document.getElementById('pdfPagesTarget');
+                targetContainer.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.6; font-weight:bold;">Structuring text layers matrix...</div>';
+                
+                try {
+                    const fileReader = new FileReader();
+                    fileReader.onload = async function() {
+                        const typedarray = new Uint8Array(this.result);
+                        currentPdfDoc = await pdfjsLib.getDocument(typedarray).promise;
+                        currentPageNum = 1;
+                        renderPdfLayers();
+                        document.body.classList.add('has-pdf');
+                    };
+                    fileReader.readAsArrayBuffer(file);
+                } catch (error) {
+                    targetContainer.innerHTML = '<div style="padding: 20px; color: red;">Failed to parse layers.</div>';
+                }
+            }
+        }
+
+        async function renderPdfLayers() {
+            if (!currentPdfDoc) return;
+            
+            const scrollArea = document.querySelector('.pdf-scroll-area');
+            const scrollRatioTop = scrollArea.scrollTop / (scrollArea.scrollHeight || 1);
+            const scrollRatioLeft = scrollArea.scrollLeft / (scrollArea.scrollWidth || 1);
+            
+            // Verificação nativa de modificação de modos estruturais
+            const isModeChange = window.pdfViewModeChanged || false;
+            window.pdfViewModeChanged = false;
+            
+            currentRenderTaskId++;
+            const taskId = currentRenderTaskId;
+            
+            const fragmentContainer = document.createDocumentFragment();
+            let targetContainer = document.getElementById('pdfPagesTarget');
+            
+            if (pdfViewMode === 'double') { 
+                targetContainer.className = 'double-view'; 
+            } else { 
+                targetContainer.className = ''; 
+            }
+            
+            document.getElementById('pdfPageNumDisplay').innerText = `Page ${currentPageNum} / ${currentPdfDoc.numPages}`;
+            document.getElementById('pdfZoomInput').value = Math.round(pdfScale * 100) + '%';
+
+            if (pdfViewMode === 'double') {
+                const pagesToRender = [currentPageNum];
+                if (currentPageNum + 1 <= currentPdfDoc.numPages) {
+                    pagesToRender.push(currentPageNum + 1);
+                }
+                
+                for (let p of pagesToRender) {
+                    const page = await currentPdfDoc.getPage(p);
+                    if (taskId !== currentRenderTaskId) return;
+                    
+                    const viewport = page.getViewport({ scale: pdfScale });
+                    
+                    const pageWrapper = document.createElement('div');
+                    pageWrapper.className = 'pdf-page-wrapper';
+                    pageWrapper.style.width = viewport.width + 'px';
+                    pageWrapper.style.height = viewport.height + 'px';
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.height = viewport.height; canvas.width = viewport.width;
+                    pageWrapper.appendChild(canvas);
+                    
+                    const textLayerDiv = document.createElement('div');
+                    textLayerDiv.className = 'textLayer';
+                    pageWrapper.appendChild(textLayerDiv);
+                    
+                    fragmentContainer.appendChild(pageWrapper);
+                    
+                    await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+                    if (taskId !== currentRenderTaskId) return;
+                    
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({ textContent: textContent, container: textLayerDiv, viewport: viewport, textDivs: [] });
+                }
+            } else {
+                for (let pageNum = 1; pageNum <= currentPdfDoc.numPages; pageNum++) {
+                    if (taskId !== currentRenderTaskId) return;
+                    const page = await currentPdfDoc.getPage(pageNum);
+                    if (taskId !== currentRenderTaskId) return;
+                    
+                    const viewport = page.getViewport({ scale: pdfScale });
+                    
+                    const pageWrapper = document.createElement('div');
+                    pageWrapper.className = 'pdf-page-wrapper';
+                    
+                    const canvas = document.createElement('canvas');
+                    pageWrapper.appendChild(canvas);
+                    
+                    const textLayerDiv = document.createElement('div');
+                    textLayerDiv.className = 'textLayer';
+                    pageWrapper.appendChild(textLayerDiv);
+                    
+                    canvas.height = viewport.height; canvas.width = viewport.width;
+                    pageWrapper.style.width = viewport.width + 'px'; pageWrapper.style.height = viewport.height + 'px';
+                    
+                    fragmentContainer.appendChild(pageWrapper);
+                    
+                    if (taskId !== currentRenderTaskId) return;
+                    await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+                    if (taskId !== currentRenderTaskId) return;
+                    const textContent = await page.getTextContent();
+                    pdfjsLib.renderTextLayer({ textContent: textContent, container: textLayerDiv, viewport: viewport, textDivs: [] });
+                }
+            }
+            
+            if (taskId === currentRenderTaskId) {
+                targetContainer.innerHTML = '';
+                targetContainer.appendChild(fragmentContainer);
+                
+                // CORRIGIDO: Se viemos do modo double para single view, trava cirurgicamente o scroll na página ativa esquerda
+                if (pdfViewMode === 'double') {
+                    scrollArea.scrollTop = 0;
+                    scrollArea.scrollLeft = 0;
+                } else {
+                    if (isModeChange) {
+                        const wrappers = targetContainer.querySelectorAll('.pdf-page-wrapper');
+                        if (wrappers[currentPageNum - 1]) {
+                            scrollArea.scrollTop = wrappers[currentPageNum - 1].offsetTop - targetContainer.offsetTop;
+                        }
+                    } else {
+                        scrollArea.scrollTop = scrollRatioTop * scrollArea.scrollHeight;
+                        scrollArea.scrollLeft = scrollRatioLeft * scrollArea.scrollWidth;
+                    }
+                }
+                updatePdfProgress();
+            }
+        }
+
+        function prevPdfPage() {
+            if (!currentPdfDoc) return;
+            if (pdfViewMode === 'double') {
+                if (currentPageNum - 2 >= 1) {
+                    currentPageNum -= 2;
+                    renderPdfLayers();
+                } else if (currentPageNum === 2) {
+                    currentPageNum = 1;
+                    renderPdfLayers();
+                }
+            } else {
+                if (currentPageNum > 1) {
+                    currentPageNum--;
+                    scrollToTargetPage(currentPageNum);
+                }
+            }
+        }
+
+        function nextPdfPage() {
+            if (!currentPdfDoc) return;
+            if (pdfViewMode === 'double') {
+                if (currentPageNum + 2 <= currentPdfDoc.numPages) {
+                    currentPageNum += 2;
+                    renderPdfLayers();
+                }
+            } else {
+                if (currentPageNum < currentPdfDoc.numPages) {
+                    currentPageNum++;
+                    scrollToTargetPage(currentPageNum);
+                }
+            }
+        }
+
+        function scrollToTargetPage(num) {
+            const wrappers = document.querySelectorAll('.pdf-page-wrapper');
+            if (wrappers[num - 1]) {
+                wrappers[num - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function updatePageIndicatorFromScroll() {
+            if (!currentPdfDoc || pdfViewMode === 'double') return;
+            const scrollArea = document.querySelector('.pdf-scroll-area');
+            const wrappers = document.querySelectorAll('.pdf-page-wrapper');
+            let closestPage = 1;
+            let minDistance = Infinity;
+            const containerCenter = scrollArea.scrollTop + (scrollArea.clientHeight / 2);
+            
+            wrappers.forEach((wrapper, idx) => {
+                const wrapperCenter = wrapper.offsetTop + (wrapper.clientHeight / 2);
+                const distance = Math.abs(containerCenter - wrapperCenter);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPage = idx + 1;
+                }
+            });
+            currentPageNum = closestPage;
+            document.getElementById('pdfPageNumDisplay').innerText = `Page ${currentPageNum} / ${currentPdfDoc.numPages}`;
+        }
+
+        function changePdfZoom(amount) {
+            pdfScale = Math.max(0.4, Math.min(2.5, pdfScale + amount));
+            renderPdfLayers();
+        }
+
+        document.getElementById('pdfZoomInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                let cleanVal = parseInt(this.value.replace('%', ''));
+                if (!isNaN(cleanVal)) {
+                    pdfScale = Math.max(0.4, Math.min(2.5, cleanVal / 100));
+                    renderPdfLayers();
+                }
+                this.blur();
+            }
+        });
+
+        function setPdfViewMode(mode) {
+            if(pdfViewMode === mode) return;
+            pdfViewMode = mode;
+            // Gatilho global nativo de marcação de alteração de modo de exibição
+            window.pdfViewModeChanged = true;
+            
+            if (mode === 'double') {
+                pdfScale = 1.0; 
+                if (currentPageNum % 2 === 0 && currentPageNum > 1) {
+                    currentPageNum--; 
+                }
+            } else {
+                pdfScale = 2.0;
+            }
+            
+            document.getElementById('btnPdfSingle').classList.toggle('active-pdf-ctrl', mode === 'single');
+            document.getElementById('btnPdfDouble').classList.toggle('active-pdf-ctrl', mode === 'double');
+            renderPdfLayers();
+        }
+
+        function setPdfTheme(theme) {
+            const container = document.getElementById('pdfViewerContainer');
+            container.classList.remove('pdf-theme-white', 'pdf-theme-sepia', 'pdf-theme-black');
+            container.classList.add('pdf-theme-' + theme);
+            
+            let bgColor = '#FFFFFF';
+            if(theme === 'sepia') bgColor = '#E9D8BC';
+            if(theme === 'black') bgColor = '#0f0f11'; 
+            document.documentElement.style.setProperty('--pdf-bg-color', bgColor);
+        }
+
+        function updatePdfProgress() {
+            if(!currentPdfDoc) return;
+            if (pdfViewMode === 'double') {
+                const percentage = Math.round((currentPageNum / currentPdfDoc.numPages) * 100);
+                document.getElementById('pdfProgressTracker').innerText = percentage + '% read';
+            } else {
+                const scrollArea = document.querySelector('.pdf-scroll-area');
+                const maxScroll = scrollArea.scrollHeight - scrollArea.clientHeight;
+                const percentage = maxScroll > 0 ? Math.round((scrollArea.scrollTop / maxScroll) * 100) : 0;
+                document.getElementById('pdfProgressTracker').innerText = percentage + '% read';
+            }
+        }
+
+        document.querySelector('.pdf-scroll-area').addEventListener('scroll', () => {
+            updatePageIndicatorFromScroll();
+            updatePdfProgress();
+        });
+
+        const dropZone = document.getElementById('pdfDropZone');
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file && file.type === "application/pdf") {
+                    const dt = new DataTransfer(); dt.items.add(file);
+                    document.getElementById('pdfInput').files = dt.files;
+                    handlePdfUpload({ target: { files: dt.files } });
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupDragAndDrop(); saveState();
+            document.documentElement.style.setProperty('--zoom-factor', currentZoom);
+        });
     </script></body></html>
