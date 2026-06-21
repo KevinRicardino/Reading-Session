@@ -72,7 +72,8 @@
 
         body.dragging-workspace .pdf-viewer-container,
         body.dragging-workspace .content-scroll-wrapper,
-        body.dragging-workspace .pdf-add-btn {
+        body.dragging-workspace .pdf-add-btn,
+        body.dragging-workspace .list-toggle-btn {
             transition: none !important;
         }
 
@@ -377,7 +378,8 @@
             container-type: inline-size;
         }
 
-        .pdf-add-btn {
+        /* BOTÕES FLUTUANTES DA DIVISÓRIA ALINHADOS VERTICALMENTE */
+        .pdf-add-btn, .list-toggle-btn {
             position: fixed;
             background: var(--card-bg);
             border: 1px solid var(--border-item);
@@ -392,14 +394,16 @@
             z-index: 1002;
             box-shadow: 0 4px 12px rgba(0,0,0,0.06);
             font-size: 1.15rem;
-            top: 50%;
-            transform: translateY(-50%) translateX(-50%);
         }
-        body:not(.has-pdf) .pdf-add-btn { left: 0%; transform: translateY(-50%) translateX(10px); transition: transform 0.2s; }
-        body.has-pdf .pdf-add-btn { left: var(--pdf-width, 80.5%); transition: left 0.1s linear, transform 0.2s; }
-        body.dragging-workspace .pdf-add-btn { transition: none !important; left: var(--pdf-width, 80.5%) !important; }
-        .pdf-add-btn:hover { transform: translateY(-50%) translateX(-50%) scale(1.08); border-color: var(--accent); }
-        body:not(.has-pdf) .pdf-add-btn:hover { transform: translateY(-50%) translateX(10px) scale(1.08); }
+        .pdf-add-btn { top: calc(50% - 25px); }
+        .list-toggle-btn { top: calc(50% + 25px); }
+
+        body:not(.has-pdf) .pdf-add-btn, body:not(.has-pdf) .list-toggle-btn { left: 0%; transform: translateY(-50%) translateX(10px); transition: transform 0.2s; }
+        body.has-pdf .pdf-add-btn, body.has-pdf .list-toggle-btn { left: var(--pdf-width, 80.5%); transform: translateY(-50%) translateX(-50%); transition: left 0.1s linear, transform 0.2s; }
+        body.dragging-workspace .pdf-add-btn, body.dragging-workspace .list-toggle-btn { transition: none !important; left: var(--pdf-width, 80.5%) !important; }
+        
+        .pdf-add-btn:hover, .list-toggle-btn:hover { transform: translateY(-50%) translateX(-50%) scale(1.08); border-color: var(--accent); }
+        body:not(.has-pdf) .pdf-add-btn:hover, body:not(.has-pdf) .list-toggle-btn:hover { transform: translateY(-50%) translateX(10px) scale(1.08); }
 
         h1 {
             color: var(--accent); font-family: 'Merriweather', serif;
@@ -563,11 +567,24 @@
             font-size: 10px !important; color: var(--text-main) !important; 
             font-style: normal !important; opacity: 1 !important; font-weight: 600 !important; 
         }
+
+        /* COMPORTAMENTO EXCLUSIVO DOS MODOS SÓ PDF / SÓ LISTA */
+        body.pdf-only .content-scroll-wrapper { display: none !important; }
+        body.pdf-only .workspace-resize-handle { display: none !important; }
+        body.pdf-only .pdf-viewer-container { display: flex !important; width: 100% !important; }
+        body.pdf-only .pdf-add-btn, body.pdf-only .list-toggle-btn { left: 100% !important; transform: translateY(-50%) translateX(-100%) !important; }
+        body.pdf-only .pdf-add-btn:hover, body.pdf-only .list-toggle-btn:hover { transform: translateY(-50%) translateX(-100%) scale(1.08) !important; }
+
+        body.list-only .pdf-viewer-container { display: none !important; }
+        body.list-only .workspace-resize-handle { display: none !important; }
+        body.list-only .pdf-add-btn, body.list-only .list-toggle-btn { left: 0% !important; transform: translateY(-50%) translateX(10px) !important; }
+        body.list-only .pdf-add-btn:hover, body.list-only .list-toggle-btn:hover { transform: translateY(-50%) translateX(10px) scale(1.08) !important; }
     </style></head>
     
     <body class="theme-white has-pdf">
 
-    <button class="pdf-add-btn" id="pdfToggleBtn" onclick="togglePdfContainer()" title="Toggle PDF Viewer"><i class="fa-solid fa-file-pdf"></i></button>
+    <button class="pdf-add-btn" id="pdfToggleBtn" onclick="togglePdfContainer()" title="Exibir apenas PDF"><i class="fa-solid fa-file-pdf"></i></button>
+    <button class="list-toggle-btn" id="listToggleBtn" onclick="toggleListContainer()" title="Exibir apenas Lista"><i class="fa-solid fa-list"></i></button>
     <input type="file" id="pdfInput" accept="application/pdf" style="display: none;" onchange="handlePdfUpload(event)">
 
     <div class="workspace-layout">
@@ -1210,7 +1227,24 @@
         let currentPageNum = 1;
         let currentRenderTaskId = 0; 
 
-        function togglePdfContainer() { document.body.classList.toggle('has-pdf'); }
+        /* EXIBIÇÃO EM TELA CHEIA VIA CLIQUES NOS BOTÕES ESPECÍFICOS */
+        function togglePdfContainer() { 
+            if (document.body.classList.contains('pdf-only')) {
+                document.body.classList.remove('pdf-only');
+            } else {
+                document.body.classList.remove('list-only');
+                document.body.classList.add('pdf-only');
+            }
+        }
+
+        function toggleListContainer() {
+            if (document.body.classList.contains('list-only')) {
+                document.body.classList.remove('list-only');
+            } else {
+                document.body.classList.remove('pdf-only');
+                document.body.classList.add('list-only');
+            }
+        }
 
         function clearAndResetPdfViewer() {
             currentPdfDoc = null;
